@@ -5,6 +5,8 @@ the whole stadium to a stand, a block and a row, sit in any seat to see the view
 a demo card. The site runs entirely in the browser: there is no backend, every visitor's data lives in their
 own browser (IndexedDB), the checkout is a demo and no email is ever sent.
 
+**Live demo: [stadium-tickets.vercel.app](https://stadium-tickets.vercel.app)**
+
 ![The home page: the stadium in 3D at golden hour, with the next match](docs/screenshots/home.jpg)
 
 ## What it does
