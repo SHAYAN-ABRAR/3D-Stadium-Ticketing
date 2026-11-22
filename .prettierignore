@@ -1,0 +1,19 @@
+# Source material and instructions: never reformat
+reference/
+PROMPT.md
+CLAUDE.md
+START-HERE.md
+AGENTS.md
+.claude/
+
+# Generated or local
+node_modules/
+.next/
+.next-*/
+test-results/
+playwright-report/
+blob-report/
+package-lock.json
+next-env.d.ts
+public/
+tests/fixtures/

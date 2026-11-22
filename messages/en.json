@@ -1,0 +1,783 @@
+{
+  "meta": {
+    "title": "Tickets",
+    "description": "Choose your exact seat in 3D, see the view from it, and get your tickets for {stadium}.",
+    "pages": {
+      "events": "Events",
+      "venue": "The venue",
+      "faq": "Questions and answers",
+      "terms": "Terms of sale",
+      "privacy": "Privacy",
+      "notFound": "Page not found"
+    },
+    "descriptions": {
+      "events": "Every match at {stadium}: dates, kick-off times, prices and the seats left.",
+      "venue": "Getting to {stadium}, its gates, accessibility and facilities.",
+      "faq": "Answers about choosing seats in 3D, holds, payment and tickets.",
+      "terms": "Sample terms of sale for this demo ticket shop.",
+      "privacy": "How this demo handles your data: it stays in your browser."
+    },
+    "ogAlt": "{stadium} in 3D at golden hour"
+  },
+  "home": {
+    "heroTitle": "Every seat. Every view. Before you buy.",
+    "heroBody": "Fly into {stadium} in 3D, sit in any seat to see the view from it, and get your tickets in a minute.",
+    "nextEvent": "Next match",
+    "kickoffAt": "Kick-off {time}",
+    "from": "From",
+    "choose": "Choose your seats",
+    "noEvent": "No match is on sale right now.",
+    "allEvents": "All events",
+    "upcoming": "Upcoming matches",
+    "eventsError": "The events couldn’t be loaded. Reload the page to try again.",
+    "countdown": {
+      "label": "Time to kick-off",
+      "days": "Days",
+      "hours": "Hours",
+      "minutes": "Min",
+      "seconds": "Sec"
+    },
+    "how": {
+      "title": "How it works",
+      "pick": {
+        "title": "Pick your seat",
+        "body": "Fly from the whole stadium to a stand, a block and a row, or use the list. Best available finds good seats together for you."
+      },
+      "view": {
+        "title": "See your view",
+        "body": "Sit down in any seat and look around. The picture on your ticket is the view from that seat."
+      },
+      "ticket": {
+        "title": "Get your ticket",
+        "body": "Hold your seats for 10 minutes, pay with the demo card and get QR tickets, a PDF and a calendar file."
+      }
+    },
+    "venue": {
+      "title": "The venue",
+      "body": "{stadium} seats about 80,000 people in three tiers under a ring-shaped roof, with 78 skyboxes between the middle and upper tiers.",
+      "gettingThere": "Getting there",
+      "gettingThereBody": "Parkside metro station is a six-minute walk from gates N1 and E1. Buses 12 and 31 stop on Parkside Avenue, and four car parks open three hours before kick-off.",
+      "gates": "Gates",
+      "gatesBody": "Your ticket names your gate. Gates open 90 minutes before kick-off.",
+      "facilities": "Facilities",
+      "facilityList": {
+        "food": "Food and drink on every concourse",
+        "access": "Wheelchair spaces with companion seats",
+        "family": "A family zone in the East stand",
+        "firstAid": "First aid at every gate",
+        "cashless": "Card and phone payments everywhere"
+      },
+      "more": "Plan your visit",
+      "planLabel": "Plan of the stadium with its gates"
+    },
+    "faq": {
+      "title": "Questions",
+      "more": "All questions"
+    }
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "bn": "বাংলা",
+    "short": {
+      "en": "EN",
+      "bn": "বাং"
+    }
+  },
+  "names": {
+    "stand": {
+      "E": "East stand",
+      "S": "South stand",
+      "W": "West stand",
+      "N": "North stand"
+    },
+    "tier": {
+      "L": "Lower tier",
+      "M": "Middle tier",
+      "U": "Upper tier"
+    }
+  },
+  "picker": {
+    "canvasLabel": "3D stadium. Drag to turn; choose a stand, a block and a seat. The seat list offers the same choices.",
+    "headerNote": "Sample event, prices and availability.",
+    "skipToList": "Skip to seat list",
+    "loaderTitle": "Building the stadium in code",
+    "steps": {
+      "engine": "Loading the 3D engine",
+      "seats": "Placing {count} seats",
+      "park": "Planting the park",
+      "ground": "Painting the grounds",
+      "shadows": "Casting the shadows",
+      "pitch": "Marking the pitch",
+      "done": "Raising the stands",
+      "scene": "Pouring the tiers",
+      "lights": "Lighting the stadium",
+      "ready": "{count} seats ready",
+      "data": "Opening the ticket data in this browser…"
+    },
+    "flash": {
+      "blockSoldOut": "Block {block} is sold out",
+      "blockClosed": "Block {block} is closed",
+      "notEnoughInBlock": "No {count} seats together in this block",
+      "notEnoughHere": "No {count} seats together here",
+      "seatTaken": "That seat is taken"
+    },
+    "noWebgl": {
+      "title": "The 3D view isn't available on this device",
+      "body": "Choose your seats on the plan instead. Everything else works the same."
+    },
+    "contextLost": {
+      "title": "The 3D view stopped",
+      "action": "Reload view"
+    },
+    "debug": {
+      "fps": "fps",
+      "frame": "frame",
+      "draws": "draw calls",
+      "triangles": "triangles",
+      "tier": "quality",
+      "pick": "pick",
+      "mode": "mode"
+    },
+    "crumbs": {
+      "label": "Where you are",
+      "back": "Back",
+      "stadium": "Stadium",
+      "block": "Block {block}",
+      "seat": "Row {row}, seat {seat}",
+      "box": "Skybox {box}",
+      "chair": "Seat {chair}"
+    },
+    "hold": {
+      "countdown": "Held · {time}",
+      "countdownLabel": "Your seats are held for {time} more"
+    },
+    "tour": {
+      "start": "Take the tour",
+      "stop": "Stop the tour"
+    },
+    "view": {
+      "open": "View settings",
+      "title": "View",
+      "quality": "Picture quality",
+      "qualities": {
+        "auto": "Automatic",
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      },
+      "lighting": "Lighting",
+      "lightings": {
+        "golden": "Golden hour",
+        "day": "Day",
+        "night": "Night match"
+      },
+      "crowd": "Match-day crowd",
+      "crowdNote": "The crowd shows when you sit in a seat or a skybox.",
+      "wave": "Start a Mexican wave"
+    },
+    "list": {
+      "label": "Seat list",
+      "planTitle": "Stadium plan: choose a block",
+      "bestAvailable": "Best available",
+      "stands": "Stands",
+      "seatsLeft": "{count, plural, one {{n} seat left} other {{n} seats left}}",
+      "soldOut": "Sold out",
+      "from": "from",
+      "fromPrice": "from {price}",
+      "closed": "Closed",
+      "notTogether": "Not enough seats together ({count})",
+      "gate": "Gate {gate}",
+      "block": "Block {block}",
+      "bestInBlock": "Best {count, plural, one {seat} other {# seats}} in this block",
+      "tierPrice": "{tier} · {price} a seat",
+      "row": "Row {row}",
+      "rowFree": "{free} of {total} free",
+      "rowFull": "Full",
+      "freeShort": "{free} free",
+      "seatsBelow": "Seats listed below",
+      "seatsInRow": "Seats in row {row}",
+      "bestInRow": "Best in this row",
+      "seat": "Seat {seat}",
+      "yours": "your pick",
+      "taken": "taken",
+      "free": "free",
+      "wheelchair": "wheelchair space",
+      "restricted": "restricted view",
+      "box": "Skybox {box}",
+      "chair": "Row {row} · Seat {seat}",
+      "gridHint": "Click a free seat to choose {count, plural, one {it} other {# seats together}}. Grey seats are taken."
+    },
+    "planLegend": {
+      "plenty": "Plenty free",
+      "limited": "Limited",
+      "few": "A few left",
+      "soldOut": "Sold out"
+    },
+    "quantity": {
+      "label": "Number of tickets",
+      "tickets": "Tickets",
+      "fewer": "Fewer tickets",
+      "more": "More tickets"
+    },
+    "filters": {
+      "button": "Filters",
+      "title": "Filters",
+      "price": "Price per seat",
+      "minPrice": "Lowest price",
+      "maxPrice": "Highest price",
+      "accessible": "Accessible spaces",
+      "accessibleHint": "Show wheelchair spaces and their companion seats.",
+      "hideRestricted": "Hide restricted view",
+      "restrictedHint": "Leave out seats under the overhang of the tier above.",
+      "reset": "Clear filters"
+    },
+    "tray": {
+      "label": "Your seats",
+      "yourSeats": "{count, plural, one {Your seat} other {Your # seats}}",
+      "release": "Release seats",
+      "holding": "Holding…",
+      "hold": "Hold {count, plural, one {seat} other {# seats}}",
+      "view": "See the view"
+    },
+    "describe": {
+      "wholeBox": "Skybox {box} · whole box",
+      "vip": "Skybox {box} · {count, plural, one {seat} other {seats}} {seats}",
+      "row": "Block {block} · Row {row} · {count, plural, one {Seat} other {Seats}} {seats}",
+      "block": "{stand} · Block {block} · {count, plural, one {# seat} other {# seats}}",
+      "many": "{count, plural, one {# seat} other {# seats}}"
+    },
+    "ticket": {
+      "label": "Your ticket",
+      "checkout": "Check out",
+      "preparing": "Preparing your tickets…",
+      "release": "Release seats",
+      "notice": {
+        "conflict": "{count, plural, one {A seat was} other {# seats were}} just taken by someone else. Choose again."
+      },
+      "block": "Block {block}",
+      "row": "Row",
+      "seats": "Seats",
+      "seat": "Seat",
+      "gate": "Gate",
+      "holding": "Holding…",
+      "hold": "Hold {count, plural, one {seat} other {# seats}}",
+      "upgrade": "Upgrade to Skybox {box} +{price}",
+      "different": "Choose different seats",
+      "restrictedNote": "Restricted view: the tier above hides the top of the far stand.",
+      "wheelchairNote": "Includes a wheelchair space with step-free access.",
+      "upgradeNote": "The upgrade takes you into Skybox {box}, level {level}.",
+      "yourView": "Your view",
+      "vipLevel": "VIP · Level {level}",
+      "box": "Skybox {box}",
+      "chairs": "Seats",
+      "free": "Free",
+      "entry": "Entry",
+      "vip": "VIP",
+      "chooseChairs": "Choose your VIP seats →",
+      "wholeBox": "Book the whole box · {price}",
+      "backToBlock": "Back to Block {block}",
+      "boxNote": "Lounge seats behind glass, a private bar and table service.",
+      "yourBoxView": "Your view from the box",
+      "vipBox": "VIP · Level {level} · Skybox {box}",
+      "wholeBoxTitle": "Whole box",
+      "seatsTitle": "Seats {seats}",
+      "seatTitle": "Seat {seat}",
+      "backToBox": "Back to the box",
+      "showTicket": "Show ticket",
+      "hideTicket": "Hide ticket to look around",
+      "heldStamp": "Held for you · {time}",
+      "viewAlt": "The view of the pitch from your seat",
+      "viewLoading": "Rendering the view from your seat",
+      "planAlt": "Stadium plan with your block highlighted"
+    },
+    "tip": {
+      "seatsLeft": "{count, plural, one {{n} seat left} other {{n} seats left}}",
+      "from": "from {price}",
+      "soldOut": "Sold out",
+      "notTogether": "Not enough seats together ({count})",
+      "gate": "Gate {gate}",
+      "block": "Block {block}",
+      "closed": "Closed",
+      "blockPrice": "{price} · {n} left",
+      "rowSeats": "Row {row} · Seats {seats}",
+      "rowSeat": "Row {row} · Seat {seat}",
+      "taken": "Taken",
+      "notHere": "No {count} seats together here",
+      "restricted": "Restricted view",
+      "boxRow": "Skybox {box} · Row {row}",
+      "chair": "Seat {seat}",
+      "wheelchair": "Wheelchair space",
+      "thumbAlt": "View from this seat"
+    },
+    "hint": {
+      "overview": {
+        "title": "Choose a stand",
+        "sub": "Hover a stand to see prices, click to fly in. Drag to turn.",
+        "subTouch": "Tap a stand to fly in. Drag to turn the stadium."
+      },
+      "stand": {
+        "title": "Choose a block in the {stand}",
+        "sub": "Grey blocks are sold out. Drag to look along the stand."
+      },
+      "block": {
+        "title": "Choose your seats in Block {block}",
+        "sub": "Hover a seat to preview the view, click to sit in it.",
+        "subTouch": "Tap a free seat, then choose Select."
+      },
+      "box": {
+        "title": "Choose your VIP seats",
+        "sub": "Click a free seat in the box. Grey seats are taken.",
+        "subTouch": "Tap a free seat in the box. Grey seats are taken."
+      },
+      "legend": {
+        "available": "Available",
+        "pick": "Your pick",
+        "sold": "Sold",
+        "wheelchair": "Wheelchair space"
+      },
+      "sample": "Sample event, prices and availability."
+    },
+    "touch": {
+      "flyIn": "Fly in",
+      "selectSeats": "Select {count, plural, one {this seat} other {these # seats}}",
+      "select": "Select",
+      "cancel": "Cancel"
+    },
+    "best": {
+      "title": "Best {count, plural, one {seat} other {# seats together}}",
+      "close": "Close",
+      "none": "No {count} seats together match your filters right now."
+    },
+    "announce": {
+      "selectionTaken": "{count, plural, one {A seat you chose was} other {# seats you chose were}} just taken by someone else.",
+      "notEnoughHere": "No {count} seats together there. Try another row or fewer tickets.",
+      "noBest": "No {count} seats together match your filters.",
+      "held": "{count, plural, one {Your seat is} other {Your # seats are}} held for {minutes} minutes.",
+      "conflict": "{count, plural, one {A seat was} other {# seats were}} just taken. Please choose again.",
+      "notOnSale": "Tickets for this event aren't on sale right now.",
+      "holdError": "We couldn't hold your seats. Please try again.",
+      "expired": "Your hold has expired and the seats were released.",
+      "expiresSoon": "Two minutes left on your hold."
+    }
+  },
+  "site": {
+    "home": "Home",
+    "findOrder": "Find your order",
+    "skip": "Skip to content",
+    "sample": "Sample site: the teams and events are fictional and no real tickets are sold.",
+    "nav": {
+      "label": "Main",
+      "events": "Events",
+      "venue": "The venue",
+      "faq": "FAQ",
+      "terms": "Terms of sale",
+      "privacy": "Privacy",
+      "menu": "Menu",
+      "close": "Close the menu"
+    },
+    "footer": {
+      "pages": "Pages",
+      "legal": "Legal"
+    }
+  },
+  "tickets": {
+    "block": "Block {block}",
+    "vipBox": "VIP · Level {level} · Skybox {box}",
+    "seatTitle": "Seat {seat}",
+    "row": "Row",
+    "seat": "Seat",
+    "gate": "Gate",
+    "entry": "Entry",
+    "vip": "VIP",
+    "short": "Block {block} · Row {row} · Seat {seat}",
+    "shortVip": "Skybox {box} · Seat {seat}",
+    "holder": "Ticket holder",
+    "doors": "Doors open {time}",
+    "kickoff": "Kick-off {time}",
+    "yourView": "Your view",
+    "viewAlt": "The view of the pitch from this seat",
+    "planAlt": "Stadium plan with this block highlighted",
+    "qrAlt": "QR code for {seat}",
+    "label": "Ticket {n} of {count}",
+    "status": {
+      "used": "Used",
+      "void": "Not valid"
+    }
+  },
+  "checkout": {
+    "metaTitle": "Checkout",
+    "title": "Checkout",
+    "back": "Back to your seats",
+    "heldFor": "Your seats are held for {time}",
+    "heldForLabel": "Time left on your hold: {time}",
+    "expiredTitle": "Your hold has expired",
+    "expiredBody": "The seats went back on sale. Choose them again if they're still free.",
+    "noHoldTitle": "No seats on hold",
+    "noHoldBody": "Choose your seats first. We hold them for {minutes} minutes while you check out.",
+    "chooseSeats": "Choose seats",
+    "tickets": "Your tickets",
+    "count": "{count, plural, one {# ticket} other {# tickets}}",
+    "details": "Your details",
+    "name": "Full name",
+    "email": "Email",
+    "emailHint": "We send your tickets to this address.",
+    "phone": "Mobile number",
+    "phoneHint": "Only used if we need to reach you about the match.",
+    "holders": "Names on the tickets",
+    "holdersHint": "Optional. A ticket left empty carries your name.",
+    "holderFor": "Name on the ticket for {seat}",
+    "terms": "I accept the <terms>terms of sale</terms> and have read the <privacy>privacy notice</privacy>.",
+    "summary": "Order summary",
+    "subtotal": "Tickets",
+    "fees": "Service fee",
+    "tax": "Tax",
+    "total": "Total",
+    "pay": "Pay {amount}",
+    "errors": {
+      "name": "Enter your full name.",
+      "email": "Enter a valid email address.",
+      "phone": "Enter a mobile number, for example +971 50 123 4567.",
+      "terms": "Accept the terms of sale to continue.",
+      "expired": "Your hold has expired. Choose your seats again.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "fixErrors": "{count, plural, one {Check the highlighted field.} other {Check the # highlighted fields.}}",
+    "loading": "Loading your seats…",
+    "card": {
+      "title": "Payment",
+      "demo": "Demo checkout: no money moves and no card is charged.",
+      "testCards": "Test card {approve}: any future expiry date and any security code. {decline} is always declined.",
+      "useTestCard": "Fill in the test card",
+      "number": "Card number",
+      "expiry": "Expiry date",
+      "cvc": "Security code",
+      "name": "Name on card",
+      "processing": "Processing payment…",
+      "declined": "The card was declined ({card} is the demo’s declined card). Try another card.",
+      "nothingCharged": "Demo: nothing is charged and no email is sent.",
+      "errors": {
+        "number": "Enter a valid card number.",
+        "expiry": "Enter an expiry date in the future, for example 12/29.",
+        "cvc": "Enter the 3 digits on the back (4 on the front for American Express).",
+        "name": "Enter the name on the card."
+      },
+      "brand": {
+        "visa": "Visa",
+        "mastercard": "Mastercard",
+        "amex": "American Express",
+        "discover": "Discover",
+        "jcb": "JCB",
+        "unionpay": "UnionPay",
+        "diners": "Diners Club",
+        "card": "Card"
+      }
+    }
+  },
+  "order": {
+    "metaTitle": "Order {code}",
+    "printing": "Printing your tickets…",
+    "paidTitle": "You're going!",
+    "thanks": "Thanks, {name}. Order {code} is confirmed.",
+    "emailed": "Your tickets are saved in this browser, and the confirmation email for {email} is in the demo outbox (nothing is sent).",
+    "pdf": "Download PDF",
+    "calendar": "Add to calendar",
+    "emailAgain": "Email me again",
+    "emailSending": "Sending…",
+    "emailSent": "A new copy is in the outbox.",
+    "emailError": "We couldn't send the email. Try again.",
+    "emailPreview": "Open email preview",
+    "openTicket": "Open ticket",
+    "ticketsLabel": "Your tickets",
+    "showAtGate": "Show the QR code at gate {gate}.",
+    "showAtVip": "Show the QR code at the VIP entrance.",
+    "total": "Total paid",
+    "doorsKickoff": "Doors open {doors} · Kick-off {kickoff}",
+    "refundedBody": "Your payment has been refunded in full.",
+    "cancelledTitle": "This order was cancelled",
+    "cancelledBody": "No tickets were issued for it.",
+    "chooseAgain": "Choose seats again",
+    "loading": "Loading your order…",
+    "notFoundTitle": "Order not found",
+    "notFoundBody": "This order isn’t saved in this browser. Orders live in the browser they were bought in.",
+    "findOrder": "Find your order",
+    "pdfMaking": "Making the PDF…",
+    "paidWith": "Paid with {brand} ending {last4} (demo)",
+    "brand": {
+      "visa": "Visa",
+      "mastercard": "Mastercard",
+      "amex": "American Express",
+      "discover": "Discover",
+      "jcb": "JCB",
+      "unionpay": "UnionPay",
+      "diners": "Diners Club",
+      "card": "Card"
+    },
+    "refundedTitle": "This order was refunded"
+  },
+  "lookup": {
+    "metaTitle": "Find your order",
+    "title": "Find your order",
+    "body": "Orders are saved in the browser they were bought in. Enter the order code from the confirmation email and the email address you used.",
+    "code": "Order code",
+    "codeHint": "For example LP-7F3K9Q",
+    "email": "Email",
+    "submit": "Find my order",
+    "working": "Looking…",
+    "notFound": "No order in this browser matches that code and email.",
+    "invalid": "Check the order code and email address.",
+    "error": "Something went wrong. Please try again.",
+    "ordersHere": "Orders in this browser",
+    "noOrders": "No orders in this browser yet.",
+    "orderLine": "{count, plural, one {# ticket} other {# tickets}} · {date}"
+  },
+  "ticketPage": {
+    "metaTitle": "Your ticket",
+    "brightness": "Turn your screen brightness up at the gate.",
+    "used": "This ticket was scanned at {time}.",
+    "void": "This ticket is no longer valid.",
+    "order": "Order {code}",
+    "allTickets": "All tickets in this order",
+    "loading": "Loading your ticket…",
+    "notFoundTitle": "Ticket not found",
+    "notFoundBody": "This ticket isn’t saved in this browser. Tickets live in the browser they were bought in: open the link there.",
+    "findOrder": "Find your order"
+  },
+  "email": {
+    "subject": "Your tickets: {home} v {away} · {code}",
+    "preheader": "{count, plural, one {# ticket} other {# tickets}} · {date} · Doors open {doors}",
+    "title": "Your tickets are ready",
+    "intro": "Thanks, {name}. Order {code} is paid. Show the QR code on each ticket at the gate.",
+    "kickoff": "Kick-off",
+    "doors": "Doors open",
+    "ticketOf": "Ticket {n} of {count}",
+    "showTicket": "Show ticket and QR code",
+    "viewOrder": "View your order",
+    "fees": "Service fee",
+    "tax": "Tax",
+    "total": "Total paid",
+    "sample": "This is a sample site: the teams, tickets and payments are not real.",
+    "why": "You placed a demo order on the {site} website. This is a preview: the site never sends email.",
+    "downloads": "Your PDF tickets and the calendar file are on the order page."
+  },
+  "emailPreview": {
+    "title": "Email preview",
+    "demo": "The demo outbox: the site writes its emails here instead of sending them.",
+    "loading": "Opening the outbox…",
+    "empty": "No email for this order in this browser.",
+    "back": "Back to your order",
+    "to": "To",
+    "subject": "Subject",
+    "written": "Written",
+    "copies": "{count, plural, one {# email} other {# emails}} in the outbox",
+    "copy": "Email {n} · {time}"
+  },
+  "eventPage": {
+    "notFoundTitle": "Event not found",
+    "notFoundBody": "There is no such event in this site’s sample data.",
+    "backHome": "Back to the home page"
+  },
+  "events": {
+    "title": "Events",
+    "intro": "Every match at {stadium}. Prices and the seats left update as people buy.",
+    "filters": {
+      "label": "Filter the events",
+      "month": "Month",
+      "allMonths": "All months",
+      "competition": "Competition",
+      "allCompetitions": "All competitions",
+      "clear": "Clear the filters"
+    },
+    "count": "{count, plural, =0 {No events to show} one {# event} other {# events}}",
+    "empty": "No events match these filters.",
+    "error": "The events couldn’t be loaded. Reload the page to try again.",
+    "past": "Played",
+    "kickoff": "Kick-off {time}",
+    "from": "From",
+    "soldShare": "{percent}% sold",
+    "choose": "Choose your seats",
+    "view": "See the event",
+    "badge": {
+      "on_sale": "On sale",
+      "few_left": "Few left",
+      "sold_out": "Sold out",
+      "coming_soon": "Coming soon",
+      "past": "Played",
+      "cancelled": "Cancelled"
+    }
+  },
+  "venue": {
+    "title": "The venue",
+    "intro": "Everything you need for match day at {stadium}.",
+    "sample": "Sample information for this demo: the stadium, its transport and its services are fictional.",
+    "address": "Address",
+    "doors": "Gates open {minutes} minutes before kick-off.",
+    "getting": {
+      "title": "Getting there",
+      "metro": {
+        "title": "Metro",
+        "body": "Parkside station (Green line) is a six-minute walk from gates N1 and E1. Extra trains run for two hours after the final whistle."
+      },
+      "bus": {
+        "title": "Bus",
+        "body": "Lines 12 and 31 stop on Parkside Avenue, next to gate S1."
+      },
+      "car": {
+        "title": "Car",
+        "body": "Four car parks (P1 to P4) around the park open three hours before kick-off. Book a space in advance: on match days they fill up."
+      },
+      "bike": {
+        "title": "Bike",
+        "body": "Free bike racks by gates W1 and W4."
+      },
+      "taxi": {
+        "title": "Taxi",
+        "body": "The drop-off and pick-up point is on the ring road by gate E3."
+      }
+    },
+    "gates": {
+      "title": "Gates",
+      "body": "There are 20 gates: six on each long stand (S1 to S6 and N1 to N6) and four at each end (E1 to E4 and W1 to W4). Your ticket names your gate. Skybox guests use the VIP entrance.",
+      "planLabel": "Plan of the stadium with its 20 gates"
+    },
+    "access": {
+      "title": "Accessibility",
+      "wheelchair": "Wheelchair spaces, each with a companion seat, are in row 1 of every odd-numbered block of the lower tier (101, 103, and so on).",
+      "entrances": "Every gate has a step-free entrance, and lifts reach every tier.",
+      "hearing": "Hearing loops at the ticket office and the information points.",
+      "book": "Turn on “Accessible spaces” in the seat picker’s filters to see and book them."
+    },
+    "facilities": {
+      "title": "Facilities",
+      "food": "Food and drink on every concourse, with vegetarian and halal choices.",
+      "family": "A family zone in the East stand with seats for children and a quiet room.",
+      "firstAid": "First aid at every gate; ask any steward.",
+      "cashless": "Card and phone payments everywhere; no cash.",
+      "wifi": "Free Wi-Fi in the bowl and on the concourses."
+    },
+    "bags": {
+      "title": "Bags and safety",
+      "body": "Bags up to A4 size are allowed and searched at the gates. Glass, cans, flares and umbrellas with points aren’t allowed."
+    }
+  },
+  "faq": {
+    "title": "Questions and answers",
+    "intro": "Choosing seats, paying and getting in, in short.",
+    "items": {
+      "choose": {
+        "q": "How do I choose my seats?",
+        "a": "Open a match and fly in: click a stand, then a block, then a seat. Or use the list on the right. Set how many tickets you need first: the picker only offers seats together."
+      },
+      "view": {
+        "q": "Is the view from my seat real?",
+        "a": "It’s rendered from a 3D model of the stadium, from the height and position of that exact seat, so it shows what you will see. The picture on your ticket is that view."
+      },
+      "hold": {
+        "q": "How long are my seats kept for me?",
+        "a": "Ten minutes after you hold them. The countdown is in the header; when it runs out, the seats go back on sale."
+      },
+      "max": {
+        "q": "How many tickets can I buy?",
+        "a": "Up to 10 per order."
+      },
+      "noWebgl": {
+        "q": "What if the 3D view doesn’t work on my device?",
+        "a": "You get a 2D plan of the stadium instead, with the same blocks, rows and seats, and you can buy in the same way."
+      },
+      "payment": {
+        "q": "Is the payment real?",
+        "a": "No. This is a demo: use the test card 4242 4242 4242 4242 with any future expiry date and any security code. No money moves, and only the card’s brand and last four digits are kept."
+      },
+      "tickets": {
+        "q": "How do I get my tickets?",
+        "a": "Right after paying: QR tickets on the order page, a PDF to print and a calendar file. The confirmation email isn’t sent; you can read it on the order page."
+      },
+      "lost": {
+        "q": "I closed the page. Where are my tickets?",
+        "a": "Under “Find your order”, in the same browser you bought them in. This demo keeps everything in your browser, so another browser or device can’t see them."
+      },
+      "accessible": {
+        "q": "How do I book a wheelchair space?",
+        "a": "Turn on “Accessible spaces” in the filters. The spaces are marked with a wheelchair symbol, and each comes with a companion seat next to it."
+      },
+      "vip": {
+        "q": "What are skyboxes?",
+        "a": "Private boxes with eight lounge seats behind glass between the middle and upper tiers. From a seat view, “Upgrade to Skybox” takes you to the nearest one."
+      },
+      "data": {
+        "q": "What happens to my data?",
+        "a": "It stays in your browser. Nothing is sent to a server; clearing this site’s data in your browser deletes your orders."
+      }
+    }
+  },
+  "legal": {
+    "sample": "Sample text: this is a demo site, not a real ticket shop. These pages are examples and bind no one.",
+    "updated": "Sample text, written for this demo.",
+    "terms": {
+      "title": "Terms of sale",
+      "sections": {
+        "about": {
+          "title": "About this site",
+          "body": "This site demonstrates a ticket shop for a fictional stadium. The teams, matches, prices and seats are sample data, and no tickets are actually sold."
+        },
+        "tickets": {
+          "title": "Tickets",
+          "body": "A ticket admits one person to the seat and match printed on it, through the gate it names. Each ticket has its own QR code and can be scanned once."
+        },
+        "prices": {
+          "title": "Prices",
+          "body": "Prices are in UAE dirhams (AED) and include all taxes and fees; nothing is added at checkout."
+        },
+        "holds": {
+          "title": "Holding seats",
+          "body": "Seats you hold are kept for you for 10 minutes. If you don’t pay in that time, they go back on sale."
+        },
+        "refunds": {
+          "title": "Changes and refunds",
+          "body": "If a match is cancelled, tickets would be refunded in full. Tickets can’t be exchanged for another match."
+        },
+        "entry": {
+          "title": "Entry",
+          "body": "Gates open 90 minutes before kick-off. Bags are searched, and stewards may refuse entry to keep everyone safe."
+        }
+      }
+    },
+    "privacy": {
+      "title": "Privacy",
+      "sections": {
+        "summary": {
+          "title": "In short",
+          "body": "This demo has no server-side database. What you enter stays in your own browser, and nothing is sent anywhere."
+        },
+        "stored": {
+          "title": "What your browser keeps",
+          "body": "Your holds, orders and tickets, the views from your seats, and the confirmation emails (which are never sent) are stored in your browser’s IndexedDB storage for this site."
+        },
+        "card": {
+          "title": "Card details",
+          "body": "The demo card form checks the number in your browser. Only the card’s brand and last four digits are kept with the order; the full number is never stored."
+        },
+        "cookies": {
+          "title": "Cookies and storage",
+          "body": "One cookie remembers your language. Local storage remembers the 3D picture quality and whether you have seen the opening flight, and session storage keeps an id for each open tab so the seats you hold stay yours. There are no analytics and no advertising."
+        },
+        "deleting": {
+          "title": "Deleting your data",
+          "body": "Clear this site’s data in your browser’s settings, and everything above is gone."
+        }
+      }
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "This page doesn’t exist or has moved.",
+    "home": "Go to the home page",
+    "events": "See the events"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "body": "The page couldn’t be shown. Try again, or go back to the home page.",
+    "retry": "Try again",
+    "home": "Go to the home page"
+  }
+}

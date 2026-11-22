@@ -1,0 +1,149 @@
+@import 'tailwindcss';
+
+/* Design tokens (PROMPT.md section 8). The same values live in src/config/brand.ts for the 3D textures. */
+@theme {
+  --color-ink: #15171c;
+  --color-ink-2: #2b2f37;
+  --color-paper: #fbfaf6;
+  --color-paper-2: #f2efe7;
+  --color-muted: #5b616d;
+  --color-line: #e2ddd2;
+  --color-seat-red: #b3121c;
+  --color-seat-blue: #1f46b8;
+  --color-pick: #ff6a13;
+  /* Orange surfaces with white text or a white thumb (buttons, chips, switches): 4.8:1 with white (AA). */
+  --color-pick-strong: #c74909;
+  --color-pick-ink: #a83c00;
+  --color-sold: #9a9da3;
+  --color-success: #1f7a3d;
+  --color-success-soft: #e3f1e7;
+  --color-danger: #b42318;
+  --color-danger-soft: #fbe7e5;
+  --color-accessible: #1f5fbf;
+
+  /* Layout breakpoints (PROMPT.md section 8): phone up to 640 px, tablet 641-900, desktop from 901. */
+  --breakpoint-tab: 641px;
+  --breakpoint-desk: 901px;
+
+  --radius-card: 14px;
+  --shadow-card: 0 12px 34px rgb(12 16 24 / 0.24);
+  --shadow-soft: 0 4px 16px rgb(12 16 24 / 0.12);
+  --shadow-pick: 0 6px 16px rgb(255 106 19 / 0.35);
+
+  /* Confirmation (PROMPT.md 8): the ticket prints out of a slot, its stub tears off, then the tickets rise in. */
+  --animate-ticket-print: ticket-print 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.25s both;
+  --animate-stub-tear: stub-tear 0.75s cubic-bezier(0.5, 0, 0.75, 0) 1.55s both;
+  --animate-intro-out: intro-out 0.35s ease-in 2.45s both;
+  --animate-rise-in: rise-in 0.5s ease-out 2.55s both;
+
+  @keyframes ticket-print {
+    from {
+      transform: translateY(-104%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+  @keyframes stub-tear {
+    0% {
+      transform: rotate(0) translate(0, 0);
+      opacity: 1;
+    }
+    25% {
+      transform: rotate(-3deg) translate(3px, 2px);
+      opacity: 1;
+    }
+    100% {
+      transform: rotate(16deg) translate(40px, 140px);
+      opacity: 0;
+    }
+  }
+  @keyframes intro-out {
+    to {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+/* Fonts come from next/font (self-hosted). Bengali glyphs fall back to Noto Sans Bengali per glyph. */
+@theme inline {
+  --font-sans: var(--font-barlow), var(--font-noto-bengali), system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: var(--font-barlow-condensed), var(--font-noto-bengali), 'Arial Narrow', Arial, sans-serif;
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  /* Bengali script needs more line height than Latin. */
+  :lang(bn) body {
+    line-height: 1.6;
+  }
+  button,
+  [role='button'] {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-pick);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /*
+   * The language switch's "বাং" on English pages: the system's Bengali font, so English pages don't
+   * download the Bengali web font for one label.
+   */
+  .font-bn-system {
+    font-family:
+      'Nirmala UI', 'Bangla Sangam MN', 'Kohinoor Bangla', 'Noto Sans Bengali', Vrinda, system-ui, sans-serif;
+  }
+  .card {
+    background: var(--color-paper);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+  }
+}
+
+/*
+ * Bengali headings in the display face need taller lines than condensed Latin (vowel signs rise above the
+ * line). Unlayered, so it wins over the leading utilities on those headings.
+ */
+:lang(bn) :is(h1, h2, h3).font-display {
+  line-height: 1.25;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

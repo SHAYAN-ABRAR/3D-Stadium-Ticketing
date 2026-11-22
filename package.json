@@ -1,0 +1,61 @@
+{
+  "name": "stadium-tickets",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@zxing/browser": "0.2.1",
+    "@zxing/library": "0.23.0",
+    "dexie": "4.4.7",
+    "motion": "14.14.0",
+    "n8ao": "2.1.0",
+    "next": "16.4.6",
+    "next-intl": "4.15.3",
+    "pdf-lib": "1.17.1",
+    "postprocessing": "6.39.6",
+    "qrcode": "1.5.4",
+    "radix-ui": "1.8.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "recharts": "3.11.0",
+    "three": "0.187.0",
+    "vaul": "1.1.2",
+    "zod": "4.6.7",
+    "zustand": "5.1.0"
+  },
+  "devDependencies": {
+    "@formatjs/icu-messageformat-parser": "3.5.23",
+    "@playwright/test": "1.65.1",
+    "@tailwindcss/turbopack": "4.3.5",
+    "@types/node": "24.19.2",
+    "@types/qrcode": "1.5.6",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@types/three": "0.187.0",
+    "cross-env": "10.1.0",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.4.6",
+    "eslint-config-prettier": "10.1.8",
+    "fake-indexeddb": "6.2.8",
+    "prettier": "3.10.1",
+    "rimraf": "6.1.4",
+    "tailwindcss": "4.3.5",
+    "typescript": "6.0.3",
+    "vite": "8.3.8",
+    "vitest": "5.1.1"
+  }
+}
