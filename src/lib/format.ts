@@ -1,6 +1,6 @@
 /**
  * Number, money and date formatting with Intl, for the active locale and the venue time zone.
- * Prices always show the currency code (AED); whole amounts have no decimals.
+ * Prices always show the currency (Tk in English, ৳ in Bengali); whole amounts have no decimals.
  */
 import { brand } from '@/config/brand';
 import { intlLocale, type AppLocale } from '@/i18n/config';
@@ -19,11 +19,24 @@ function df(key: string, make: () => Intl.DateTimeFormat): Intl.DateTimeFormat {
   return f;
 }
 
+/**
+ * The taka's sign as people write it: "Tk" in English (the Bengali sign isn't in the Latin display fonts,
+ * and it would pull the Bengali web font into English pages) and "৳" in Bengali.
+ */
+export function currencySign(locale: AppLocale = 'en'): string {
+  return locale === 'bn' ? '৳' : 'Tk';
+}
+
 export function formatMoney(
   minor: number,
   locale: AppLocale = 'en',
   currency: string = brand.currency,
 ): string {
+  // Taka: "Tk 2,000" in English, "২,০০০৳" in Bengali (Intl's form for bn-BD).
+  if (currency === 'BDT') {
+    const amount = formatAmount(minor, locale);
+    return locale === 'bn' ? `${amount}৳` : `Tk ${amount}`;
+  }
   const whole = minor % MINOR === 0;
   const f = nf(`m:${locale}:${currency}:${whole}`, () => {
     return new Intl.NumberFormat(intlLocale[locale], {

@@ -1,6 +1,7 @@
 /**
- * The six sample events (PROMPT.md 9.3). Fictional teams; kick-off 19:30 venue time on Saturdays counted
- * from the visitor's first visit. The local data store seeds them (src/data/seed.ts).
+ * The six sample events (PROMPT.md 9.3): Bangladesh at home to South Asian sides (sample fixtures, not real
+ * matches); kick-off 19:30 venue time on Saturdays counted from the visitor's first visit. The local data
+ * store seeds them (src/data/seed.ts).
  */
 import { brand } from '@/config/brand';
 import {
@@ -39,74 +40,74 @@ export const SAMPLE_EVENTS: readonly SampleEventDef[] = [
   {
     slug: 'cup-final',
     competition: 'Cup Final',
-    homeTeam: 'Harbour City FC',
-    awayTeam: 'Northvale United',
-    homeColor: '#1f46b8',
-    awayColor: '#f2b705',
+    homeTeam: 'Bangladesh',
+    awayTeam: 'India',
+    homeColor: '#006a4e',
+    awayColor: '#1d5fbf',
     saturday: 1,
     status: 'on_sale',
     sold: 0.65,
   },
   {
-    slug: 'rangers-v-eastbridge',
-    competition: 'League',
-    homeTeam: 'Linden Park Rangers',
-    awayTeam: 'Eastbridge Athletic',
-    homeColor: '#b3121c',
-    awayColor: '#0f7b5f',
+    slug: 'bangladesh-v-nepal',
+    competition: 'Friendly',
+    homeTeam: 'Bangladesh',
+    awayTeam: 'Nepal',
+    homeColor: '#006a4e',
+    awayColor: '#c8102e',
     saturday: 2,
     status: 'on_sale',
     sold: 0.4,
   },
   {
-    slug: 'rangers-v-southmoor',
-    competition: 'League',
-    homeTeam: 'Linden Park Rangers',
-    awayTeam: 'Southmoor Town',
-    homeColor: '#b3121c',
-    awayColor: '#6b2fa3',
+    slug: 'bangladesh-v-bhutan',
+    competition: 'Qualifier',
+    homeTeam: 'Bangladesh',
+    awayTeam: 'Bhutan',
+    homeColor: '#006a4e',
+    awayColor: '#f4b400',
     saturday: 3,
     status: 'on_sale',
     sold: 0.3,
   },
   {
-    slug: 'derby-rangers-v-harbour-city',
-    competition: 'Derby',
-    homeTeam: 'Linden Park Rangers',
-    awayTeam: 'Harbour City FC',
-    homeColor: '#b3121c',
-    awayColor: '#1f46b8',
+    slug: 'bangladesh-v-pakistan',
+    competition: 'Qualifier',
+    homeTeam: 'Bangladesh',
+    awayTeam: 'Pakistan',
+    homeColor: '#006a4e',
+    awayColor: '#f4f4f1',
     saturday: 4,
     status: 'on_sale',
     sold: 0.97,
     scatter: 1,
   },
   {
-    slug: 'friendly-rangers-v-westholm',
+    slug: 'bangladesh-v-sri-lanka',
     competition: 'Friendly',
-    homeTeam: 'Linden Park Rangers',
-    awayTeam: 'Westholm',
-    homeColor: '#b3121c',
-    awayColor: '#2d2d2d',
+    homeTeam: 'Bangladesh',
+    awayTeam: 'Sri Lanka',
+    homeColor: '#006a4e',
+    awayColor: '#8d153a',
     saturday: 5,
     status: 'on_sale',
     sold: 0,
     saleOpensInDays: 3,
   },
   {
-    slug: 'season-opener',
-    competition: 'Season opener',
-    homeTeam: 'Linden Park Rangers',
-    awayTeam: 'Northvale United',
-    homeColor: '#b3121c',
-    awayColor: '#f2b705',
+    slug: 'bangladesh-v-maldives',
+    competition: 'Friendly',
+    homeTeam: 'Bangladesh',
+    awayTeam: 'Maldives',
+    homeColor: '#006a4e',
+    awayColor: '#d21034',
     saturday: -1,
     status: 'past',
     sold: 0.88,
   },
 ];
 
-/** UTC offset of the venue time zone at a given instant, in minutes (e.g. +240 for Asia/Dubai). */
+/** UTC offset of the venue time zone at a given instant, in minutes (e.g. +360 for Asia/Dhaka). */
 export function zoneOffsetMinutes(timeZone: string, at: Date): number {
   const parts = new Intl.DateTimeFormat('en-US', {
     timeZone,

@@ -95,7 +95,7 @@ export function Thumb({ seat, className = 'h-[75px] w-[120px]' }: { seat: number
   );
 }
 
-/** "North stand · from AED 450" labels floating over the stands at the overview. Clickable. */
+/** "North stand · from Tk 800" labels floating over the stands at the overview. Clickable. */
 export function StandLabels() {
   const t = useTranslations('picker.tip');
   const fmt = useFormat();

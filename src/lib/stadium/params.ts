@@ -117,12 +117,32 @@ export const FACADE = { d: 63.5, top: 52.6, finD: 64.7, finStep: 4.2 } as const;
 export const GATES_LONG = 6;
 export const GATES_END = 4;
 
-/** Default prices in AED (major units), by tier and price class (PROMPT.md section 5). */
+/**
+ * Default prices in Bangladeshi taka (major units), by tier and price class. The classes are the
+ * prototype's (the parity test checks them); the amounts were set for taka, with shared steps so the
+ * category ladder stays short (8 categories).
+ */
 export const DEFAULT_PRICES: Readonly<Record<TierKey, Readonly<Record<PriceClass, number>>>> = {
+  L: { centre: 1500, side: 1200, corner: 1000, end: 800 },
+  M: { centre: 2000, side: 1600, corner: 1200, end: 1000 },
+  U: { centre: 1000, side: 800, corner: 600, end: 500 },
+};
+
+/**
+ * How well each area sells, by tier and price class: the prototype's price points (in its own currency).
+ * The sold-seat patterns and the simulated buyers use these instead of DEFAULT_PRICES, so they stay the
+ * same whatever the currency or the amounts. The parity test checks them against the prototype's blocks.
+ */
+export const DEMAND_POINTS: Readonly<Record<TierKey, Readonly<Record<PriceClass, number>>>> = {
   L: { centre: 950, side: 800, corner: 650, end: 550 },
   M: { centre: 1250, side: 1050, corner: 850, end: 750 },
   U: { centre: 650, side: 550, corner: 450, end: 400 },
 };
+
+/** Demand of an area from 0 (upper-tier ends) to 1 (middle-tier centre). */
+export function demandOf(tier: TierKey, priceClass: PriceClass): number {
+  return (DEMAND_POINTS[tier][priceClass] - 400) / 850;
+}
 
 /**
  * Surface height of the bowl at offset d (used to pick stands from far away by ray-marching).

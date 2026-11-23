@@ -33,7 +33,7 @@ export function TeamDot({ color }: { color: string }) {
   return (
     <span
       aria-hidden
-      className="inline-block size-3 flex-none rounded-full ring-2 ring-white"
+      className="inline-block size-3 flex-none rounded-full ring-2 ring-white inset-ring inset-ring-black/20"
       style={{ background: color }}
     />
   );

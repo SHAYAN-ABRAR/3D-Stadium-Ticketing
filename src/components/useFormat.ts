@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { isLocale, type AppLocale } from '@/i18n/config';
-import { formatAmount, formatDate, formatMoney, formatNumber } from '@/lib/format';
+import { currencySign, formatAmount, formatDate, formatMoney, formatNumber } from '@/lib/format';
 import type { StandKey, TierKey } from '@/lib/stadium';
 
 export function useFormat() {
@@ -14,6 +14,8 @@ export function useFormat() {
     () => ({
       locale,
       money: (minor: number) => formatMoney(minor, locale),
+      /** The currency's sign for the ticket stub (Tk, or ৳ in Bengali). */
+      sign: currencySign(locale),
       amount: (minor: number) => formatAmount(minor, locale),
       num: (n: number) => formatNumber(n, locale),
       date: (at: number | string, style: Parameters<typeof formatDate>[1]) => formatDate(at, style, locale),

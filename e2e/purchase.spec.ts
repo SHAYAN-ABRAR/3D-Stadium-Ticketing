@@ -7,7 +7,7 @@ async function checkoutAndPay(page: Page, prefix: string, card = '4242 4242 4242
   await expect(page.getByRole('heading', { name: 'Checkout' })).toBeVisible();
   await page.getByLabel('Full name').fill('Dana Example');
   await page.getByLabel('Email').fill('dana@example.com');
-  await page.getByLabel('Mobile number').fill('+971 50 123 4567');
+  await page.getByLabel('Mobile number').fill('+880 1712 345678');
   await page.getByText('Names on the tickets').click();
   await page
     .getByLabel(/Name on the ticket for/)
@@ -19,9 +19,9 @@ async function checkoutAndPay(page: Page, prefix: string, card = '4242 4242 4242
   await page.getByLabel('Name on card').fill('Dana Example');
   await page.getByLabel(/I accept the/).check();
   await shot(page, `${prefix}-checkout`);
-  await page.getByRole('button', { name: /^Pay AED/ }).click();
-  await page.waitForURL(/\/orders\/LP-[A-Z0-9]{6}/);
-  const code = page.url().match(/LP-[A-Z0-9]{6}/)![0];
+  await page.getByRole('button', { name: /^Pay Tk/ }).click();
+  await page.waitForURL(/\/orders\/DI-[A-Z0-9]{6}/);
+  const code = page.url().match(/DI-[A-Z0-9]{6}/)![0];
   await expect(page.getByRole('heading', { name: "You're going!" })).toBeVisible();
   await expect(page.locator('[data-print-intro]')).toBeHidden({ timeout: 15_000 });
   return code;
@@ -36,9 +36,10 @@ async function download(page: Page, name: string): Promise<Buffer> {
   return fs.readFileSync((await file.path())!);
 }
 
-// E2E spec 1: real mouse picking for the stand, the block and the seat, a hold, checkout with the views
-// rendered in the picker, the demo card payment, a confirmation with 2 QR tickets, downloads made in the
-// browser, the email in the outbox, and another tab seeing the seats sold.
+// E2E spec 1: real mouse picking for the stand, the block and the seat, a hold, checkout with the match
+// header on each ticket, the demo card payment, a confirmation with 2 QR tickets, downloads made in the
+// browser, the email in the outbox, the ticket page with the view rendered in the picker, and another tab
+// seeing the seats sold.
 test('buy 2 seats end to end and another tab sees them sold', async ({ page, context }) => {
   // The email preview frame is sandboxed without scripts on purpose; Playwright's trace snapshots try to
   // run script inside it and Chrome logs the refusal (without tracing the page logs nothing).
@@ -72,12 +73,16 @@ test('buy 2 seats end to end and another tab sees them sold', async ({ page, con
   expect(seats).toHaveLength(2);
   await ticket.getByRole('button', { name: 'Check out' }).click();
   await page.waitForURL(/\/checkout\?event=cup-final/);
-  // Both tickets show the view rendered in the picker.
-  await expect(page.getByRole('img', { name: 'The view of the pitch from this seat' })).toHaveCount(2);
+  // Both tickets carry the match header: the two teams' flags and names, the venue and the times.
+  const headers = page.locator('[data-match-banner]');
+  await expect(headers).toHaveCount(2);
+  await expect(headers.first()).toContainText('Bangladesh');
+  await expect(headers.first()).toContainText('India');
+  await expect(headers.first().locator('img')).toHaveCount(2);
 
   const code = await checkoutAndPay(page, 'purchase-3d');
   await expect(page.getByRole('img', { name: /^QR code for Block 232 · Row 10 · Seat \d+$/ })).toHaveCount(2);
-  await expect(page.getByRole('img', { name: 'The view of the pitch from this seat' })).toHaveCount(2);
+  await expect(page.locator('[data-match-banner]')).toHaveCount(2);
   await expect(page.getByText('Ana Lima')).toBeVisible();
   await expect(page.getByText('Paid with Visa ending 4242 (demo)')).toBeVisible();
   await shot(page, 'purchase-3d-confirmation');
@@ -126,25 +131,25 @@ test('without WebGL: buy through the 2D plan', async ({ page }) => {
   await shot(page, 'purchase-2d-held');
   await ticket.getByRole('button', { name: 'Check out' }).click();
   await page.waitForURL(/\/checkout\?event=cup-final/);
-  // No 3D views here: the tickets show the plan with the block highlighted.
-  await expect(page.getByRole('img', { name: 'Stadium plan with this block highlighted' })).toHaveCount(2);
+  // The tickets carry the match header without WebGL too.
+  await expect(page.locator('[data-match-banner]')).toHaveCount(2);
 
   // The decline test card is declined and the seats stay held; the test card then goes through.
   await page.getByLabel('Full name').fill('Dana Example');
   await page.getByLabel('Email').fill('dana@example.com');
-  await page.getByLabel('Mobile number').fill('+971 50 123 4567');
+  await page.getByLabel('Mobile number').fill('+880 1712 345678');
   await page.getByLabel('Card number').fill('4000 0000 0000 0002');
   await page.getByLabel('Expiry date').fill('12/30');
   await page.getByLabel('Security code').fill('123');
   await page.getByLabel('Name on card').fill('Dana Example');
   await page.getByLabel(/I accept the/).check();
-  await page.getByRole('button', { name: /^Pay AED/ }).click();
+  await page.getByRole('button', { name: /^Pay Tk/ }).click();
   await expect(page.getByText(/The card was declined/)).toBeVisible();
   await expect(page.getByRole('timer')).toContainText('Your seats are held for');
   await shot(page, 'purchase-2d-declined');
 
   const code = await checkoutAndPay(page, 'purchase-2d');
-  expect(code).toMatch(/^LP-/);
+  expect(code).toMatch(/^DI-/);
   await expect(page.getByRole('img', { name: /^QR code for Block 232 · Row 10 · Seat \d+$/ })).toHaveCount(2);
   await shot(page, 'purchase-2d-confirmation');
   expect(errors).toEqual([]);

@@ -5,7 +5,7 @@
  */
 import { clamp, hash2, hashString, noise2, rng } from './random';
 import { getLayout, type StadiumLayout } from './layout';
-import { SKY } from './params';
+import { demandOf, SKY } from './params';
 
 export interface SoldPatternOptions {
   /** Seeds the pattern; use the event slug. */
@@ -36,7 +36,7 @@ export function soldPattern(opts: SoldPatternOptions, layout: StadiumLayout = ge
 
   // Per block: a base share sold (desirable blocks sell more) and whether it is sold out.
   const base = layout.blocks.map((b) => {
-    const desir = (b.defaultPrice - 400) / 850;
+    const desir = demandOf(b.tierKey, b.priceClass);
     const f = 0.3 + desir * 0.45 + (hash2(b.id + seedNum, 7) - 0.5) * 0.4;
     const soldOut =
       target > 0 && !blocksWithKeep.has(b.index) && hash2(b.id + seedNum, 11) < soldOutShare * (0.5 + desir);

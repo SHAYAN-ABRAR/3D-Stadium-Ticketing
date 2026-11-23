@@ -1,5 +1,5 @@
 /**
- * Prices. Money is integer minor units (AED has 2 decimals: AED 1,250 is 125000). The server computes every
+ * Prices. Money is integer minor units (taka has 2 decimals: Tk 2,000 is 200000). The server computes every
  * price with these functions; the browser uses the same ones only for display.
  *
  * Restricted-view seats are priced one category lower: the next cheaper category among the event's
@@ -13,7 +13,7 @@ import { getLayout, SeatFlag, type BlockInfo, type StadiumLayout } from './layou
 export const MINOR_PER_MAJOR = 10 ** brand.currencyDecimals;
 export const toMinor = (major: number): number => Math.round(major * MINOR_PER_MAJOR);
 
-/** Every distinct default price in AED, highest first: the default category ladder. */
+/** Every distinct default price in taka, highest first: the default category ladder. */
 export const DEFAULT_PRICE_LADDER: readonly number[] = [
   ...new Set(Object.values(DEFAULT_PRICES).flatMap((t) => Object.values(t))),
 ].sort((a, b) => b - a);
@@ -25,7 +25,7 @@ export interface CategoryDef {
   sort: number;
 }
 
-/** One category per distinct default price, highest first ("Category 1" is AED 1,250). */
+/** One category per distinct default price, highest first ("Category 1" is Tk 2,000). */
 export function defaultCategories(): CategoryDef[] {
   return DEFAULT_PRICE_LADDER.map((p, i) => ({
     code: `C${i + 1}`,

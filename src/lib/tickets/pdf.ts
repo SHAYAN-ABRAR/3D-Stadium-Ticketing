@@ -1,37 +1,25 @@
 /**
- * Ticket PDF (PROMPT.md 9.7): one A6 page per ticket with the QR code, the seat-view picture (or the plan
- * with the block highlighted), the seat and the times. Always in English: pdf-lib can't shape Bengali
+ * Ticket PDF (PROMPT.md 9.7): one A6 page per ticket with the QR code, the match header (both teams'
+ * flags, as on the site's tickets), the seat and the times. Always in English: pdf-lib can't shape Bengali
  * script, and the standard fonts only cover Western European characters, so other characters in names are
  * dropped (a name that would lose most of its letters is left out).
  */
 import {
-  clip,
-  endPath,
   PDFDocument,
-  popGraphicsState,
-  pushGraphicsState,
-  rectangle,
   rgb,
   StandardFonts,
   type PDFFont,
+  type PDFImage,
   type PDFPage,
   type RGB,
 } from 'pdf-lib';
 import { brand } from '@/config/brand';
-import { formatDate, formatAmount } from '@/lib/format';
-import {
-  blockPolygon,
-  boxPolygon,
-  getLayout,
-  loopPolygon,
-  PLAN_EXTENT,
-  polygonPath,
-  type SeatLabel,
-} from '@/lib/stadium';
+import { currencySign, formatDate, formatAmount } from '@/lib/format';
+import type { SeatLabel } from '@/lib/stadium';
 import type { AbstractIntlMessages } from 'next-intl';
 import { translatorFor } from '@/lib/messages';
 import { ticketText } from '@/lib/ticket-text';
-import { isViewJpeg } from './jpeg';
+import { FLAG_PNG } from './flag-png';
 import { qrMatrix, ticketUrl } from './qr';
 
 export interface PdfTicket {
@@ -39,14 +27,24 @@ export interface PdfTicket {
   priceMinor: number;
   holderName: string | null;
   token: string;
-  view: Uint8Array | null;
 }
 
 export interface PdfInput {
   orderCode: string;
-  /** Epoch milliseconds. */
-  event: { title: string; competition: string; startsAt: number; doorsAt: number };
+  /** Epoch milliseconds. Team colours are "#rrggbb". */
+  event: {
+    title: string;
+    competition: string;
+    homeTeam: string;
+    awayTeam: string;
+    homeColor?: string;
+    awayColor?: string;
+    startsAt: number;
+    doorsAt: number;
+  };
   tickets: PdfTicket[];
+  /** The teams' flags as PNG pictures (see flag-png.ts); without them the header shows the teams' colours. */
+  flags?: { home: Uint8Array | null; away: Uint8Array | null };
   /** This site's origin, for the QR codes. */
   origin: string;
   /** The English messages (the PDF is always in English). */
@@ -65,8 +63,6 @@ const C = {
   muted: hex(brand.colors.muted),
   line: hex('#d6d0c3'),
   pick: hex(brand.colors.pick),
-  neutral: hex('#d7d2c7'),
-  pitch: hex('#3f8a2f'),
   white: rgb(1, 1, 1),
 };
 
@@ -103,9 +99,30 @@ export async function buildTicketsPdf(input: PdfInput): Promise<Uint8Array> {
   const enc = encoder(regular);
   const t = translatorFor(input.messages, 'en', 'tickets');
   const names = translatorFor(input.messages, 'en', 'names');
+  // The flags are embedded once and drawn on every page; a picture pdf-lib can't read is left out.
+  const embedFlag = async (png: Uint8Array | null | undefined): Promise<PDFImage | null> => {
+    if (!png) return null;
+    try {
+      return await pdf.embedPng(png);
+    } catch {
+      return null;
+    }
+  };
+  const teams = [
+    {
+      name: input.event.homeTeam,
+      color: teamColor(input.event.homeColor),
+      flag: await embedFlag(input.flags?.home),
+    },
+    {
+      name: input.event.awayTeam,
+      color: teamColor(input.event.awayColor),
+      flag: await embedFlag(input.flags?.away),
+    },
+  ];
 
-  // A6 is 297.6 × 419.5 pt. From the top: header band, event, picture, seat, then the perforation and the
-  // stub (QR code, order, gate, price). Every y below is a text baseline or a box's bottom edge.
+  // A6 is 297.6 × 419.5 pt. From the top: header band, event, match header, seat, then the perforation and
+  // the stub (QR code, order, gate, price). Every y below is a text baseline or a box's bottom edge.
   const [W, H] = A6;
   const M = 16;
   const PIC_TOP = H - 74,
@@ -139,23 +156,73 @@ export async function buildTicketsPdf(input: PdfInput): Promise<Uint8Array> {
     page.drawText(title.str, { x: M, y: H - 52, size: title.sz, font: bold, color: C.ink });
     text(`${input.event.competition} · ${start}`, M, H - 64, 8, regular, C.muted);
 
-    // The seat view (cropped to the band, keeping its 16:10 shape) or the plan with the block highlighted.
+    // The match header, as on the site's tickets: a wash of each team's colour from its side, the colours
+    // along the top, both flags with "VS" between them, the names, then the venue, date and times.
     const pw = W - 2 * M;
     const py = PIC_TOP - PIC_H;
-    let drewView = false;
-    if (ticket.view && isViewJpeg(ticket.view)) {
-      try {
-        const img = await pdf.embedJpg(ticket.view);
-        const ih = pw / (img.width / img.height);
-        page.pushOperators(pushGraphicsState(), rectangle(M, py, pw, PIC_H), clip(), endPath());
-        page.drawImage(img, { x: M, y: py + (PIC_H - ih) / 2, width: pw, height: ih });
-        page.pushOperators(popGraphicsState());
-        drewView = true;
-      } catch {
-        // Not a usable JPEG: the plan below instead.
-      }
+    const top = py + PIC_H;
+    page.drawRectangle({ x: M, y: py, width: pw, height: PIC_H, color: C.white });
+    const STEPS = 24;
+    const strip = (pw * 0.4) / STEPS;
+    for (let i = 0; i < STEPS; i++) {
+      const opacity = 0.16 * (1 - i / STEPS);
+      const wash = { y: py, width: strip, height: PIC_H, opacity };
+      page.drawRectangle({ ...wash, x: M + i * strip, color: teams[0].color });
+      page.drawRectangle({ ...wash, x: M + pw - (i + 1) * strip, color: teams[1].color });
     }
-    if (!drewView) drawPlan(page, ticket.label, M, py, pw, PIC_H);
+    page.drawRectangle({ x: M, y: top - 3, width: pw / 2, height: 3, color: teams[0].color });
+    page.drawRectangle({ x: M + pw / 2, y: top - 3, width: pw / 2, height: 3, color: teams[1].color });
+    page.drawRectangle({ x: M, y: py, width: pw, height: PIC_H, borderColor: C.line, borderWidth: 0.5 });
+    const FW = 60,
+      FH = 45;
+    const fy = top - 12 - FH;
+    teams.forEach((team, side) => {
+      const cx = M + pw * (side === 0 ? 0.25 : 0.75);
+      if (team.flag) {
+        const s = FW / (FLAG_PNG.width - 2 * FLAG_PNG.margin);
+        page.drawImage(team.flag, {
+          x: cx - FW / 2 - FLAG_PNG.margin * s,
+          y: fy - FLAG_PNG.margin * s,
+          width: FLAG_PNG.width * s,
+          height: FLAG_PNG.height * s,
+        });
+      } else page.drawRectangle({ x: cx - FW / 2, y: fy, width: FW, height: FH, color: team.color });
+      const name = fit(team.name.toUpperCase(), bold, 11, 7, pw * 0.42);
+      page.drawText(name.str, {
+        x: cx - bold.widthOfTextAtSize(name.str, name.sz) / 2,
+        y: fy - 13,
+        size: name.sz,
+        font: bold,
+        color: C.ink,
+      });
+    });
+    const vs = enc(t('match.vs'));
+    page.drawText(vs, {
+      x: M + pw / 2 - bold.widthOfTextAtSize(vs, 16) / 2,
+      y: fy + FH / 2 - 5.5,
+      size: 16,
+      font: bold,
+      color: C.ink,
+    });
+    page.drawLine({
+      start: { x: M, y: py + 30 },
+      end: { x: M + pw, y: py + 30 },
+      thickness: 0.5,
+      color: C.line,
+    });
+    /** "Label: value" in 6.5 pt, from the left edge or up to the right one. */
+    const fact = (label: string, value: string, y: number, side: 'left' | 'right') => {
+      const l = enc(`${label}:`);
+      const v = enc(value);
+      const lw = regular.widthOfTextAtSize(l, 6.5) + 2.5;
+      const x0 = side === 'left' ? M + 8 : M + pw - 8 - lw - bold.widthOfTextAtSize(v, 6.5);
+      page.drawText(l, { x: x0, y, size: 6.5, font: regular, color: C.muted });
+      page.drawText(v, { x: x0 + lw, y, size: 6.5, font: bold, color: C.ink });
+    };
+    fact(t('match.venue'), brand.name, py + 19, 'left');
+    fact(t('match.date'), formatDate(input.event.startsAt, 'medium', 'en'), py + 9, 'left');
+    fact(t('match.gates'), formatDate(input.event.doorsAt, 'time', 'en'), py + 19, 'right');
+    fact(t('match.kickoff'), formatDate(input.event.startsAt, 'time', 'en'), py + 9, 'right');
 
     const words = ticketText(ticket.label, t, names);
     text(words.kicker, M, py - 14, 8, bold, C.muted);
@@ -208,7 +275,8 @@ export async function buildTicketsPdf(input: PdfInput): Promise<Uint8Array> {
       14,
       bold,
     );
-    text(brand.currency, sx, PERF - 84, 8, bold, C.muted);
+    // The PDF's standard fonts have no taka sign: print the English form (Tk).
+    text(brand.currency === 'BDT' ? currencySign('en') : brand.currency, sx, PERF - 84, 8, bold, C.muted);
     text(formatAmount(ticket.priceMinor, 'en'), sx, PERF - 108, 22, bold, C.pick);
     text('Show this QR code at the gate. Sample ticket for demonstration.', M, 12, 6, regular, C.muted);
   }
@@ -240,40 +308,7 @@ function drawQr(page: PDFPage, url: string, x: number, y: number, size: number) 
   }
 }
 
-function drawPlan(page: PDFPage, label: SeatLabel, x: number, y: number, w: number, h: number) {
-  page.drawRectangle({ x, y, width: w, height: h, color: C.paper2 });
-  const L = getLayout();
-  const { halfX, halfZ } = PLAN_EXTENT;
-  const s = Math.min(w / (2 * halfX), h / (2 * halfZ)) * 0.94;
-  const ox = x + w / 2,
-    oy = y + h / 2;
-  // drawSvgPath puts the path's origin at (x, y) and flips its y axis (SVG y grows downward).
-  page.drawSvgPath(polygonPath(loopPolygon()), {
-    x: ox,
-    y: oy,
-    scale: s,
-    color: C.paper,
-    borderColor: C.line,
-    borderWidth: 0.6,
-  });
-  page.drawRectangle({ x: ox - 54.5 * s, y: oy - 36 * s, width: 109 * s, height: 72 * s, color: C.pitch });
-  const mine = label.kind === 'bowl' ? label.block : -1;
-  for (const b of L.blocks) {
-    page.drawSvgPath(polygonPath(blockPolygon(b, L)), {
-      x: ox,
-      y: oy,
-      scale: s,
-      color: b.id === mine ? C.pick : C.neutral,
-      borderColor: C.paper,
-      borderWidth: 0.4,
-    });
-  }
-  for (const box of L.boxes) {
-    page.drawSvgPath(polygonPath(boxPolygon(box)), {
-      x: ox,
-      y: oy,
-      scale: s,
-      color: label.kind === 'vip' && label.box === box.id ? C.pick : C.line,
-    });
-  }
+/** A team's colour ("#rrggbb"), or the muted grey when it has none. */
+function teamColor(color: string | undefined): RGB {
+  return color && /^#[0-9a-f]{6}$/i.test(color) ? hex(color) : C.muted;
 }

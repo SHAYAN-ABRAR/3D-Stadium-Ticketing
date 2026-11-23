@@ -9,7 +9,7 @@ test('home: hero, next match with countdown, upcoming matches, venue and FAQ', a
   await page.goto('/?webgl=0');
   await expect(page.getByRole('heading', { level: 1, name: /Every seat\. Every view\./ })).toBeVisible();
   const next = page.locator('section[aria-labelledby="next-event"]');
-  await expect(next).toContainText('Harbour City FC');
+  await expect(next).toContainText('Bangladesh v India');
   await expect(next.getByRole('timer')).toBeVisible();
   await expect(next.getByRole('link', { name: 'Choose your seats' })).toHaveAttribute(
     'href',
@@ -29,10 +29,10 @@ test('events: filters by competition and month, and keeps them in the address', 
   await page.goto('/events');
   const cards = page.locator('main article');
   await expect(cards).toHaveCount(6);
-  await page.getByLabel('Competition').selectOption('League');
-  await expect(page).toHaveURL(/competition=League/);
+  await page.getByLabel('Competition').selectOption('Qualifier');
+  await expect(page).toHaveURL(/competition=Qualifier/);
   await expect(cards).toHaveCount(2);
-  await expect(cards.first()).toContainText('League');
+  await expect(cards.first()).toContainText('Qualifier');
   await page.getByRole('button', { name: 'Clear the filters' }).click();
   await expect(cards).toHaveCount(6);
   const month = page.getByLabel('Month');

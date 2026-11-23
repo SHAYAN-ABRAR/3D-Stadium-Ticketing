@@ -1,34 +1,34 @@
 /**
  * Everything that identifies the venue and its commercial rules. Every text and every 3D texture
  * reads from here, so the site can be re-branded for another client by editing this one file.
- * Money is in minor units (AED has 2 decimals: AED 1,250 is 125000).
+ * Money is in minor units (Bangladeshi taka has 2 decimals, paisa: Tk 2,000 is 200000).
  */
 export const brand = {
-  name: 'Linden Park Stadium',
-  shortName: 'Linden Park',
-  /** Two-letter prefix of order codes, for example LP-7F3K9Q. */
-  orderPrefix: 'LP',
-  currency: 'AED',
+  name: 'Dhaka International Stadium',
+  shortName: 'Dhaka Stadium',
+  /** Two-letter prefix of order codes, for example DI-7F3K9Q. */
+  orderPrefix: 'DI',
+  currency: 'BDT',
   currencyDecimals: 2,
   /** Venue time zone: every date and time on the site is shown in it. */
-  timeZone: 'Asia/Dubai',
+  timeZone: 'Asia/Dhaka',
   /** The concourse level of the skybox ring, printed on VIP tickets. */
   vipLevel: 2,
   holdMinutes: 10,
   maxTicketsPerOrder: 10,
   /** VIP prices of the sample events. */
-  vipChairPriceMinor: 375_000,
-  boxPriceMinor: 2_800_000,
+  vipChairPriceMinor: 750_000,
+  boxPriceMinor: 5_500_000,
   /** Fees and tax: lines appear at checkout only when these are above zero. */
   serviceFeePerTicketMinor: 0,
   taxRate: 0,
   /** Doors open this many minutes before kick-off unless an event says otherwise. */
   doorsBeforeKickoffMinutes: 90,
   address: {
-    line1: '1 Parkside Avenue',
-    line2: 'Linden Park',
-    city: 'Dubai',
-    country: 'United Arab Emirates',
+    line1: 'Begum Rokeya Sarani',
+    line2: 'Mirpur 10',
+    city: 'Dhaka',
+    country: 'Bangladesh',
   },
   colors: {
     ink: '#15171c',

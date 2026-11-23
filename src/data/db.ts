@@ -91,7 +91,11 @@ export interface MetaRow {
   value: unknown;
 }
 
-export const DB_NAME = 'stadium-tickets';
+/**
+ * The database name. It changed when the stadium became Dhaka International Stadium (taka prices,
+ * Bangladesh fixtures): visitors start with fresh sample data instead of mixing in the old events and prices.
+ */
+export const DB_NAME = 'dhaka-stadium';
 
 export class StadiumDb extends Dexie {
   events!: Table<EventRow, string>;

@@ -1,5 +1,5 @@
 /**
- * Order codes (LP-7F3K9Q: no look-alike characters) and ticket tokens. Without a server there is no secret
+ * Order codes (DI-7F3K9Q: no look-alike characters) and ticket tokens. Without a server there is no secret
  * to sign with: a token is 128 random bits, and the ticket lives in the browser that bought it. The QR code
  * encodes `${origin}/tickets/${token}`.
  */
@@ -27,7 +27,7 @@ export function newOrderCode(): string {
   return `${brand.orderPrefix}-${s}`;
 }
 
-/** Normalises what a visitor typed ("lp 7f3k9q" -> "LP-7F3K9Q"); null if it can't be a code. */
+/** Normalises what a visitor typed ("di 7f3k9q" -> "DI-7F3K9Q"); null if it can't be a code. */
 export function normaliseOrderCode(input: string): string | null {
   const t = input.toUpperCase().replace(/[^A-Z0-9]/g, '');
   const prefix = brand.orderPrefix.toUpperCase();

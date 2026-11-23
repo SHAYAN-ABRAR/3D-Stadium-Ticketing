@@ -23,7 +23,7 @@ src/i18n/, messages/  next-intl without locale routing; locale from the NEXT_LOC
 
 - **Seat indices are permanent IDs.** `src/lib/stadium/` generates them deterministically; the local
   database keeps one status per seat index for each event.
-- **Totals come only from the pricing module.** Money is integer minor units (AED 1,250 = `125000`); times
+- **Totals come only from the pricing module.** Money is integer minor units (Tk 2,000 = `200000`); times
   are epoch milliseconds (UTC), shown in the venue time zone.
 - **Holds and sales change seats only inside a Dexie read-write transaction**, and the changes are broadcast
   to every tab after the commit.
@@ -60,7 +60,12 @@ React side (`src/components/picker/`): `StadiumStage` loads `EngineView` with `n
 `ssr: false`; `EngineView` creates one engine per effect run and disposes it in the cleanup (Strict Mode
 safe); `store.ts` is the zustand store and the two-way bridge (engine events in, data out). Clicks in 3D
 arrive as `select` events and the store decides what happens. `src/components/plan/StadiumPlan.tsx` is
-the SVG plan used without WebGL, on tickets and on the venue page.
+the SVG plan used without WebGL, on the ticket page when no seat view was saved, and on the venue page.
+
+Tickets (`src/components/ticket/`): `Ticket` is the ticket layout (header area, details, perforated stub)
+and `MatchBanner` its match header: both teams' flags (`public/flags`, looked up in
+`src/lib/events/flags.ts`), the venue, the date and the times. The PDF mirrors it, with the flags drawn
+into PNG pictures in the browser first (`src/lib/tickets/flag-png.ts`), since pdf-lib can't draw SVG.
 
 Data flow on the event page: the data store's seats (a full read, then live changes from this tab, other
 tabs and the sales simulator) → `StoreBackend` → picker store (`statuses`) → `engine.setStatuses` /

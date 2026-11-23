@@ -1,7 +1,7 @@
 'use client';
 /**
- * The ticket card in the picker: seat ticket, skybox ticket and VIP ticket, with the "Your view" picture.
- * Bottom-centre from 641 px; a stacked bottom sheet on phones (collapsible to look around).
+ * The ticket card in the picker: seat ticket, skybox ticket and VIP ticket, with the match header (both
+ * teams' flags). Bottom-centre from 641 px; a stacked bottom sheet on phones (collapsible to look around).
  */
 import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
@@ -10,7 +10,7 @@ import { brand } from '@/config/brand';
 import { chairsInSelection, nearestBox, summarize, upgradeDiffMinor } from '@/lib/picker/selection';
 import { getLayout, SKY } from '@/lib/stadium';
 import type { SnapshotView } from '@/engine';
-import { StadiumPlan, type BlockTone } from '../plan/StadiumPlan';
+import { MatchBanner } from '../ticket/MatchBanner';
 import { Barcode, Ticket, type TicketFact } from '../ticket/Ticket';
 import { buttonClass } from '../ui/atoms';
 import { useClock } from '../useClock';
@@ -77,7 +77,6 @@ export function TicketCard() {
     <p className="font-semibold text-danger">{t(`notice.${s.notice.key}`, s.notice.values)}</p>
   ) : null;
 
-  let view: SnapshotView;
   let props: {
     kicker: string;
     title: string;
@@ -85,9 +84,10 @@ export function TicketCard() {
     actions: ReactNode;
     note?: ReactNode;
     price: number;
-    chip: string;
     seed: number;
   };
+  /** The seat's view, rendered in the background for "Check out" (the skybox overview needs none). */
+  let warm: SnapshotView | null = null;
 
   if (kind === 'seat') {
     const b = L.blocks[L.blockOf[nav.seat]];
@@ -95,7 +95,7 @@ export function TicketCard() {
     const boxIndex = nearestBox(nav.seat);
     const box = L.boxes[boxIndex];
     const up = upgradeDiffMinor(sum.totalMinor, Math.max(1, sum.count), s.pricing);
-    view = { kind: 'seat', seat: nav.seat };
+    warm = { kind: 'seat', seat: nav.seat };
     props = {
       kicker: `${fmt.stand(b.standKey)} · ${fmt.tier(b.tierKey)}`,
       title: t('block', { block: b.id }),
@@ -139,14 +139,12 @@ export function TicketCard() {
         </>
       ),
       price: held ? s.hold!.totalMinor : sum.totalMinor,
-      chip: t('yourView'),
       seed: nav.seat * 7 + 1,
     };
   } else if (kind === 'box') {
     const box = L.boxes[nav.box];
     let free = 0;
     for (let k = 0; k < SKY.chairsPerBox; k++) if (!s.statuses || s.statuses[box.firstSeat + k] === 0) free++;
-    view = { kind: 'box', box: nav.box };
     props = {
       kicker: t('vipLevel', { level: brand.vipLevel }),
       title: t('box', { box: box.id }),
@@ -183,14 +181,13 @@ export function TicketCard() {
       ),
       note: t('boxNote'),
       price: s.pricing.vipChairMinor,
-      chip: t('yourBoxView'),
       seed: 9000 + box.id,
     };
   } else {
     const box = L.boxes[nav.box];
     const chair = nav.vip >= 0 ? nav.vip : (chairs[0] ?? 0);
     const whole = sum.wholeBox;
-    view = { kind: 'vip', box: nav.box, chair };
+    warm = { kind: 'vip', box: nav.box, chair };
     props = {
       kicker: t('vipBox', { level: brand.vipLevel, box: box.id }),
       title: whole
@@ -228,25 +225,38 @@ export function TicketCard() {
       ),
       note: notice,
       price: held ? s.hold!.totalMinor : sum.totalMinor,
-      chip: t('yourBoxView'),
       seed: 9100 + box.id * 10 + chair,
     };
   }
 
-  const stamp = held && s.hold ? <HeldStamp expiresAt={s.hold.expiresAt} /> : null;
+  // The stamp goes across the match header's top-left corner, which the header then keeps clear.
+  const stamped = held && !!s.hold;
+  const stamp = stamped ? (
+    <HeldStamp expiresAt={s.hold!.expiresAt} className={phone ? 'top-3 left-3.5' : 'top-4.5 left-4.5'} />
+  ) : null;
+  const prewarm = warm ? <PrewarmView view={warm} /> : null;
   const ticket = (
     <Ticket
       label={t('label')}
       layout={phone ? 'stacked' : 'full'}
-      view={<ViewPicture view={view} />}
-      chip={props.chip}
+      view={
+        <MatchBanner
+          homeTeam={s.event.homeTeam}
+          awayTeam={s.event.awayTeam}
+          homeColor={s.event.homeColor}
+          awayColor={s.event.awayColor}
+          startsAt={s.event.startsAt}
+          doorsAt={s.event.doorsAt}
+          stampRoom={stamped}
+        />
+      }
       eventLine={eventLine}
       kicker={props.kicker}
       title={props.title}
       facts={props.facts}
       actions={props.actions}
       note={props.note}
-      currency={brand.currency}
+      currency={fmt.sign}
       price={fmt.amount(props.price)}
       code={<Barcode seed={props.seed} className={phone ? 'h-[84px] w-11' : undefined} />}
     />
@@ -267,6 +277,7 @@ export function TicketCard() {
         >
           {collapsed ? t('showTicket') : t('hideTicket')}
         </button>
+        {prewarm}
         {collapsed ? null : (
           <div className="relative max-h-[calc(100dvh-170px)] overflow-y-auto rounded-[14px]">
             {ticket}
@@ -282,6 +293,7 @@ export function TicketCard() {
       id="ticket-card"
       className="fixed bottom-5 left-1/2 z-20 w-[min(880px,calc(100%-32px))] -translate-x-1/2 tab:bottom-2 desk:bottom-5"
     >
+      {prewarm}
       <div className="relative">
         {ticket}
         {stamp}
@@ -290,64 +302,32 @@ export function TicketCard() {
   );
 }
 
+/**
+ * Renders the seat's "Your view" picture in the background while its ticket is open (the ticket shows the
+ * match header instead), so "Check out" finds it ready and the order keeps it for the ticket page.
+ */
+function PrewarmView({ view }: { view: SnapshotView }) {
+  const engine = usePicker((s) => s.engine);
+  const key = viewKey(view, 640, 400);
+  useEffect(() => {
+    if (engine) void snapshotView(engine, view, 640, 400);
+    // view is described completely by key
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [engine, key]);
+  return null;
+}
+
 /** "Held for you · 9:41" stamp across the ticket. */
-function HeldStamp({ expiresAt }: { expiresAt: number }) {
+function HeldStamp({ expiresAt, className }: { expiresAt: number; className: string }) {
   const t = useTranslations('picker.ticket');
   const now = useClock();
   if (now === null) return null;
   return (
     <span
-      className="pointer-events-none absolute bottom-[18px] left-[18px] -rotate-6 rounded-lg border-[3px] border-pick bg-[rgba(251,250,246,.9)] px-2.5 py-0.5 font-display text-xl leading-tight font-bold text-pick-ink"
+      className={`pointer-events-none absolute ${className} -rotate-6 rounded-lg border-[3px] border-pick bg-[rgba(251,250,246,.9)] px-2.5 py-0.5 font-display text-xl leading-tight font-bold text-pick-ink`}
       role="status"
     >
       {t('heldStamp', { time: formatCountdown(Math.max(0, expiresAt - now)) })}
     </span>
-  );
-}
-
-/** The "Your view" picture: a snapshot rendered by the engine (cached). */
-function ViewPicture({ view }: { view: SnapshotView }) {
-  const status = usePicker((s) => s.status);
-  if (status === 'nowebgl') return <PlanPicture view={view} />;
-  return <SnapshotPicture view={view} />;
-}
-
-/** Without WebGL the ticket shows the plan with the chosen block highlighted. */
-function PlanPicture({ view }: { view: SnapshotView }) {
-  const t = useTranslations('picker.ticket');
-  const L = getLayout();
-  const block = view.kind === 'seat' ? L.blockOf[view.seat] : -1;
-  const tones = L.blocks.map((b): BlockTone => (b.index === block ? 'highlight' : 'neutral'));
-  return (
-    <div className="absolute inset-0 grid place-items-center bg-paper-2 p-2">
-      <StadiumPlan tones={tones} className="h-full w-auto max-w-full" title={t('planAlt')} />
-    </div>
-  );
-}
-
-function SnapshotPicture({ view }: { view: SnapshotView }) {
-  const t = useTranslations('picker.ticket');
-  const engine = usePicker((s) => s.engine);
-  const key = viewKey(view, 640, 400);
-  const [shot, setShot] = useState<{ key: string; url: string } | null>(null);
-  useEffect(() => {
-    if (!engine) return;
-    let alive = true;
-    void snapshotView(engine, view, 640, 400).then((e) => {
-      if (alive && e) setShot({ key, url: e.url });
-    });
-    return () => {
-      alive = false;
-    };
-    // view is described completely by key
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [engine, key]);
-  const url = shot?.key === key ? shot.url : null;
-  return url ? (
-    // A blob URL from the engine's snapshot: next/image can't optimise it.
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={url} alt={t('viewAlt')} className="absolute inset-0 size-full object-cover" />
-  ) : (
-    <div className="absolute inset-0 animate-pulse bg-[#27313d]" aria-label={t('viewLoading')} role="img" />
   );
 }

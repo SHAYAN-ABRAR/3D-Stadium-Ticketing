@@ -8,7 +8,7 @@
 import { protectedSeats } from '@/lib/events/samples';
 import { sellThroughOf } from '@/lib/events/summary';
 import { isOnSale, type PublicEvent } from '@/lib/events/types';
-import { getLayout, type BlockInfo } from '@/lib/stadium';
+import { DEMAND_POINTS, getLayout, type BlockInfo } from '@/lib/stadium';
 import type { SeatState } from './store';
 
 export interface SimHost {
@@ -93,11 +93,11 @@ export class SalesSimulator {
     return (await this.host.addSimHold(this.eventId, seats, buys, ms)) ? seats : null;
   }
 
-  /** A run of adjacent free seats in a block chosen by desirability (pricier blocks sell faster). */
+  /** A run of adjacent free seats in a block chosen by desirability (the best blocks sell faster). */
   private pickSeats(statuses: Uint8Array, closed: Set<number>): number[] | null {
     const L = getLayout();
     const blocks = L.blocks.filter((b) => !closed.has(b.index));
-    const weights = blocks.map((b) => b.defaultPrice * (1.2 - b.c * 0.4));
+    const weights = blocks.map((b) => DEMAND_POINTS[b.tierKey][b.priceClass] * (1.2 - b.c * 0.4));
     const sum = weights.reduce((a, b) => a + b, 0);
     const size = GROUP_SIZES[Math.floor(this.random() * GROUP_SIZES.length)];
     for (let tries = 0; tries < 12; tries++) {

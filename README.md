@@ -1,9 +1,11 @@
-# Linden Park Stadium: tickets with a 3D seat picker
+# Dhaka International Stadium: tickets with a 3D seat picker
 
-A ticket shop for a fictional 80,000-seat football stadium, built around a real-time 3D seat picker. Fly from
-the whole stadium to a stand, a block and a row, sit in any seat to see the view from it, and buy tickets with
-a demo card. The site runs entirely in the browser: there is no backend, every visitor's data lives in their
-own browser (IndexedDB), the checkout is a demo and no email is ever sent.
+A ticket shop for a fictional 80,000-seat football stadium in Dhaka, built around a real-time 3D seat picker.
+Fly from the whole stadium to a stand, a block and a row, sit in any seat to see the view from it, and buy
+tickets with a demo card. The sample fixtures are Bangladesh home matches against India, Nepal, Bhutan,
+Pakistan, Sri Lanka and the Maldives, priced in Bangladeshi taka. The site runs entirely in the browser: there
+is no backend, every visitor's data lives in their own browser (IndexedDB), the checkout is a demo and no
+email is ever sent.
 
 **Live demo: [stadium-tickets.vercel.app](https://stadium-tickets.vercel.app)**
 
@@ -20,7 +22,8 @@ own browser (IndexedDB), the checkout is a demo and no email is ever sent.
   adjacent free seats, and "Best available" ranks every run in the stadium.
 - Filters for price, wheelchair spaces and restricted views; hover tooltips with live view thumbnails; a
   keyboard path through the seat list; touch sheets on phones.
-- A "Your view" picture of every seat, rendered on the fly and printed on the ticket.
+- A "Your view" picture of every seat, rendered on the fly: in the hover thumbnails and on each ticket's
+  page.
 
 **Graphics and animation** (three.js with post-processing)
 
@@ -41,14 +44,15 @@ own browser (IndexedDB), the checkout is a demo and no email is ever sent.
   broadcast to every open tab, so two tabs behave like two visitors (and can't take the same seat).
 - Simulated buyers hold and buy seats while an event page is open, so availability changes live.
 - A demo card form (Luhn, expiry and security-code checks; only the brand and last four digits are kept).
-- The confirmation prints a ticket with a QR code; tickets download as a PDF and a calendar file, both made
-  in the browser. The confirmation email goes to a local outbox and can be previewed.
+- Tickets look like real match tickets: both teams' flags with "VS", the venue, the date and the times,
+  then the seat, a perforated stub and, once paid, a QR code. They download as a PDF and a calendar file,
+  both made in the browser. The confirmation email goes to a local outbox and can be previewed.
 
 **The site**
 
 - Home page with the 3D stadium as its hero, events with filters, venue information with a gates plan,
   questions, sample legal pages, Open Graph images.
-- English and Bengali throughout, dates and prices in the venue's time zone and currency.
+- English and Bengali throughout, with dates in Dhaka time and prices in taka (Tk in English, ৳ in Bengali).
 - Accessible: keyboard navigation, screen-reader labels, AA contrast, reduced motion respected.
 
 ![A seat view with the crowd, and its ticket](docs/screenshots/seat-view.jpg)
@@ -93,7 +97,8 @@ production domain is used automatically).
 | UI             | `src/components/`, `src/app/` | Next.js App Router, React 19, Tailwind CSS 4, Radix UI, next-intl.                                                              |
 
 Stack: Next.js 16, React 19, TypeScript 6, three.js r187 with postprocessing and N8AO, Dexie 4, Tailwind
-CSS 4, next-intl 4, pdf-lib, qrcode, Vitest 5, Playwright.
+CSS 4, next-intl 4, pdf-lib, qrcode, Vitest 5, Playwright. The flags on the tickets are from
+[flag-icons](https://github.com/lipis/flag-icons) (MIT licence, in `public/flags/`).
 
 More detail: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and the decision log
 [docs/DECISIONS.md](docs/DECISIONS.md).
@@ -110,6 +115,7 @@ More detail: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and the decision log
 
 ## Limitations
 
-- It's a demo: the teams, matches and prices are fictional, payments are simulated and no email is sent.
+- It's a demo: the stadium, the fixtures and the prices are fictional, payments are simulated and no email is
+  sent.
 - Data lives in the browser that created it: orders and tickets can't be opened in another browser, and
   clearing the site's data deletes them.

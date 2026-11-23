@@ -45,7 +45,7 @@
       },
       "view": {
         "title": "See your view",
-        "body": "Sit down in any seat and look around. The picture on your ticket is the view from that seat."
+        "body": "Sit down in any seat and look around. What you see is the view from that seat."
       },
       "ticket": {
         "title": "Get your ticket",
@@ -56,7 +56,7 @@
       "title": "The venue",
       "body": "{stadium} seats about 80,000 people in three tiers under a ring-shaped roof, with 78 skyboxes between the middle and upper tiers.",
       "gettingThere": "Getting there",
-      "gettingThereBody": "Parkside metro station is a six-minute walk from gates N1 and E1. Buses 12 and 31 stop on Parkside Avenue, and four car parks open three hours before kick-off.",
+      "gettingThereBody": "Mirpur 10 metro station (MRT Line 6) is a six-minute walk from gates N1 and E1. City buses stop at the Mirpur 10 roundabout, and four car parks open three hours before kick-off.",
       "gates": "Gates",
       "gatesBody": "Your ticket names your gate. Gates open 90 minutes before kick-off.",
       "facilities": "Facilities",
@@ -267,7 +267,6 @@
       "restrictedNote": "Restricted view: the tier above hides the top of the far stand.",
       "wheelchairNote": "Includes a wheelchair space with step-free access.",
       "upgradeNote": "The upgrade takes you into Skybox {box}, level {level}.",
-      "yourView": "Your view",
       "vipLevel": "VIP · Level {level}",
       "box": "Skybox {box}",
       "chairs": "Seats",
@@ -278,7 +277,6 @@
       "wholeBox": "Book the whole box · {price}",
       "backToBlock": "Back to Block {block}",
       "boxNote": "Lounge seats behind glass, a private bar and table service.",
-      "yourBoxView": "Your view from the box",
       "vipBox": "VIP · Level {level} · Skybox {box}",
       "wholeBoxTitle": "Whole box",
       "seatsTitle": "Seats {seats}",
@@ -286,10 +284,7 @@
       "backToBox": "Back to the box",
       "showTicket": "Show ticket",
       "hideTicket": "Hide ticket to look around",
-      "heldStamp": "Held for you · {time}",
-      "viewAlt": "The view of the pitch from your seat",
-      "viewLoading": "Rendering the view from your seat",
-      "planAlt": "Stadium plan with your block highlighted"
+      "heldStamp": "Held for you · {time}"
     },
     "tip": {
       "seatsLeft": "{count, plural, one {{n} seat left} other {{n} seats left}}",
@@ -365,7 +360,7 @@
     "home": "Home",
     "findOrder": "Find your order",
     "skip": "Skip to content",
-    "sample": "Sample site: the teams and events are fictional and no real tickets are sold.",
+    "sample": "Sample site: the fixtures are fictional and no real tickets are sold.",
     "nav": {
       "label": "Main",
       "events": "Events",
@@ -395,7 +390,6 @@
     "holder": "Ticket holder",
     "doors": "Doors open {time}",
     "kickoff": "Kick-off {time}",
-    "yourView": "Your view",
     "viewAlt": "The view of the pitch from this seat",
     "planAlt": "Stadium plan with this block highlighted",
     "qrAlt": "QR code for {seat}",
@@ -403,6 +397,13 @@
     "status": {
       "used": "Used",
       "void": "Not valid"
+    },
+    "match": {
+      "vs": "VS",
+      "venue": "Venue",
+      "date": "Date",
+      "gates": "Gates open",
+      "kickoff": "Kick-off"
     }
   },
   "checkout": {
@@ -437,7 +438,7 @@
     "errors": {
       "name": "Enter your full name.",
       "email": "Enter a valid email address.",
-      "phone": "Enter a mobile number, for example +971 50 123 4567.",
+      "phone": "Enter a mobile number, for example +880 1712 345678.",
       "terms": "Accept the terms of sale to continue.",
       "expired": "Your hold has expired. Choose your seats again.",
       "generic": "Something went wrong. Please try again."
@@ -520,7 +521,7 @@
     "title": "Find your order",
     "body": "Orders are saved in the browser they were bought in. Enter the order code from the confirmation email and the email address you used.",
     "code": "Order code",
-    "codeHint": "For example LP-7F3K9Q",
+    "codeHint": "For example DI-7F3K9Q",
     "email": "Email",
     "submit": "Find my order",
     "working": "Looking…",
@@ -556,7 +557,7 @@
     "fees": "Service fee",
     "tax": "Tax",
     "total": "Total paid",
-    "sample": "This is a sample site: the teams, tickets and payments are not real.",
+    "sample": "This is a sample site: the matches, tickets and payments are not real.",
     "why": "You placed a demo order on the {site} website. This is a preview: the site never sends email.",
     "downloads": "Your PDF tickets and the calendar file are on the order page."
   },
@@ -609,18 +610,18 @@
   "venue": {
     "title": "The venue",
     "intro": "Everything you need for match day at {stadium}.",
-    "sample": "Sample information for this demo: the stadium, its transport and its services are fictional.",
+    "sample": "Sample information for this demo: the stadium and its services are fictional; the area and the metro station are real.",
     "address": "Address",
     "doors": "Gates open {minutes} minutes before kick-off.",
     "getting": {
       "title": "Getting there",
       "metro": {
         "title": "Metro",
-        "body": "Parkside station (Green line) is a six-minute walk from gates N1 and E1. Extra trains run for two hours after the final whistle."
+        "body": "Mirpur 10 station on MRT Line 6 is a six-minute walk from gates N1 and E1. Extra trains run for two hours after the final whistle."
       },
       "bus": {
         "title": "Bus",
-        "body": "Lines 12 and 31 stop on Parkside Avenue, next to gate S1."
+        "body": "City buses stop at the Mirpur 10 roundabout, next to gate S1."
       },
       "car": {
         "title": "Car",
@@ -670,7 +671,7 @@
       },
       "view": {
         "q": "Is the view from my seat real?",
-        "a": "It’s rendered from a 3D model of the stadium, from the height and position of that exact seat, so it shows what you will see. The picture on your ticket is that view."
+        "a": "It’s rendered from a 3D model of the stadium, from the height and position of that exact seat, so it shows what you will see. Your ticket’s page keeps a picture of that view."
       },
       "hold": {
         "q": "How long are my seats kept for me?",
@@ -718,7 +719,7 @@
       "sections": {
         "about": {
           "title": "About this site",
-          "body": "This site demonstrates a ticket shop for a fictional stadium. The teams, matches, prices and seats are sample data, and no tickets are actually sold."
+          "body": "This site demonstrates a ticket shop for a fictional stadium. The matches, prices and seats are sample data, and no tickets are actually sold."
         },
         "tickets": {
           "title": "Tickets",
@@ -726,7 +727,7 @@
         },
         "prices": {
           "title": "Prices",
-          "body": "Prices are in UAE dirhams (AED) and include all taxes and fees; nothing is added at checkout."
+          "body": "Prices are in Bangladeshi taka (Tk) and include all taxes and fees; nothing is added at checkout."
         },
         "holds": {
           "title": "Holding seats",

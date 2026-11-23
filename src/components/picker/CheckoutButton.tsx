@@ -1,9 +1,9 @@
 'use client';
 /**
- * "Check out" (ticket card and selection tray): renders the view from each held seat (at most 6 s in all),
- * keeps the pictures in the browser for the checkout page and the tickets, then opens checkout. A seat not
- * rendered in time borrows the picture of a seat in the same row or skybox (their views are practically the
- * same).
+ * "Check out" (ticket card and selection tray): renders the view from each held seat (at most 6 s in all;
+ * the ticket card has usually rendered the open seat's already), keeps the pictures in the browser for the
+ * tickets (the ticket page shows them), then opens checkout. A seat not rendered in time borrows the picture
+ * of a seat in the same row or skybox (their views are practically the same).
  */
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';

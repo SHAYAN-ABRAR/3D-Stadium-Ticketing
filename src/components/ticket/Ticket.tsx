@@ -1,7 +1,8 @@
 /**
- * The ticket: the site's signature component (PROMPT.md section 8). Paper, a picture of the view, a dashed
- * perforation with notches, a stub with a barcode or QR code, and the price in orange. Reused in the
- * picker, at checkout, on the confirmation page and on the ticket page; mirrored in the PDF and email.
+ * The ticket: the site's signature component (PROMPT.md section 8). Paper, the match header (both teams'
+ * flags, see MatchBanner), a dashed perforation with notches, a stub with a barcode or QR code, and the
+ * price in orange. Reused in the picker, at checkout and on the confirmation page; mirrored in the PDF and
+ * email.
  */
 import type { ReactNode } from 'react';
 
@@ -11,7 +12,7 @@ export interface TicketFact {
 }
 
 export interface TicketProps {
-  /** The picture area (view snapshot, plan, ...). Omit for a ticket without a picture. */
+  /** The picture area (the match header). Omit for a ticket without one. */
   view?: ReactNode;
   /** Small label over the picture ("Your view"). */
   chip?: string;
@@ -131,7 +132,7 @@ export function Ticket({
       {stamp ? (
         <span
           className={`absolute rounded-lg border-[3px] border-pick bg-[rgba(251,250,246,.88)] px-2.5 py-0.5 font-display text-xl leading-tight font-bold text-pick-ink ${
-            stacked ? 'top-[calc(clamp(140px,30vh,210px)-48px)] left-3.5' : 'bottom-[18px] left-[18px]'
+            stacked ? 'top-3 left-3.5' : 'top-4.5 left-4.5'
           } -rotate-6`}
           role="status"
         >

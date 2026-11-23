@@ -1,7 +1,8 @@
 'use client';
 /**
- * Checkout: the ticket stack with each seat's view, the hold countdown, the buyer form (name, email, phone,
- * optional holder names), a demo card form, the terms and Pay. Fee and tax lines appear only when set.
+ * Checkout: the ticket stack (each with the match header), the hold countdown, the buyer form (name,
+ * email, phone, optional holder names), a demo card form, the terms and Pay. Fee and tax lines appear only
+ * when set.
  * Nothing is charged: the card is checked in the browser and only its brand and last four digits reach the
  * data store, which turns the hold into an order in one transaction.
  */
@@ -9,7 +10,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { brand } from '@/config/brand';
 import { getStore } from '@/data';
 import {
   APPROVE_TEST_CARD,
@@ -27,9 +27,8 @@ import type { PublicEvent } from '@/lib/events/types';
 import { formatCountdown } from '@/lib/format';
 import type { OrderTotals } from '@/lib/orders';
 import type { SeatLabel } from '@/lib/stadium';
+import { MatchBanner } from '../ticket/MatchBanner';
 import { Barcode, Ticket } from '../ticket/Ticket';
-import { TicketPlan } from '../ticket/TicketPlan';
-import { useLocalViews } from '../ticket/useLocalViews';
 import { useTicketWords } from '../ticket/useTicketWords';
 import { buttonClass, ChevronLeft } from '../ui/atoms';
 import { useClock } from '../useClock';
@@ -89,10 +88,6 @@ export function CheckoutForm({ event, hold, lines, totals }: CheckoutFormProps) 
   const words = useTicketWords();
   const router = useRouter();
   const phoneLayout = useMedia(PHONE);
-  const views = useLocalViews(
-    event.id,
-    lines.map((l) => l.seatIndex),
-  );
   const now = useClock();
   const [values, setValues] = useState<Values>({
     name: '',
@@ -193,31 +188,26 @@ export function CheckoutForm({ event, hold, lines, totals }: CheckoutFormProps) 
         <ol className="mt-3 flex flex-col gap-4">
           {lines.map((l, k) => {
             const w = words(l.label);
-            const url = views.get(l.seatIndex);
             return (
               <li key={l.seatIndex}>
                 <Ticket
                   label={tt('label', { n: k + 1, count })}
                   layout={phoneLayout ? 'stacked' : 'full'}
                   view={
-                    url ? (
-                      // A picture kept in this browser (blob URL): next/image can't optimise it.
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={url}
-                        alt={tt('viewAlt')}
-                        className="absolute inset-0 size-full object-cover"
-                      />
-                    ) : (
-                      <TicketPlan label={l.label} title={tt('planAlt')} />
-                    )
+                    <MatchBanner
+                      homeTeam={event.homeTeam}
+                      awayTeam={event.awayTeam}
+                      homeColor={event.homeColor}
+                      awayColor={event.awayColor}
+                      startsAt={event.startsAt}
+                      doorsAt={event.doorsAt}
+                    />
                   }
-                  chip={url ? tt('yourView') : undefined}
                   eventLine={eventLine}
                   kicker={w.kicker}
                   title={w.title}
                   facts={w.facts}
-                  currency={brand.currency}
+                  currency={fmt.sign}
                   price={fmt.amount(l.priceMinor)}
                   code={
                     <Barcode seed={l.seatIndex * 7 + 1} className={phoneLayout ? 'h-21 w-11' : undefined} />

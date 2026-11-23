@@ -8,7 +8,7 @@ import { pricingOf } from '@/lib/events/types';
 import { indexOf, seatPricesMinor } from '@/lib/stadium';
 
 const ORIGIN = 'https://tickets.example.test';
-const BUYER = { name: 'Dana Example', email: 'Dana@Example.com', phone: '+971 50 123 4567' };
+const BUYER = { name: 'Dana Example', email: 'Dana@Example.com', phone: '+880 1712 345678' };
 const VISA = { brand: 'visa' as const, last4: '4242', approved: true };
 
 const opened: LocalStore[] = [];
@@ -28,7 +28,7 @@ function browser(opts: { soldOverride?: number; clock?: { t: number } } = {}) {
       sweep: false,
       origin: ORIGIN,
       now: opts.clock ? () => opts.clock!.t : undefined,
-      seed: { only: ['cup-final', 'friendly-rangers-v-westholm'], soldOverride: opts.soldOverride },
+      seed: { only: ['cup-final', 'bangladesh-v-sri-lanka'], soldOverride: opts.soldOverride },
     });
     opened.push(s);
     return s;
@@ -52,11 +52,11 @@ describe('local store', () => {
     const tab = browser();
     const a = tab('a');
     const events = await a.listEvents();
-    expect(events.map((e) => e.event.slug)).toEqual(['cup-final', 'friendly-rangers-v-westholm']);
+    expect(events.map((e) => e.event.slug)).toEqual(['cup-final', 'bangladesh-v-sri-lanka']);
     const cup = events[0];
     expect(cup.badge).toBe('on_sale');
     expect(cup.sellThrough).toBeGreaterThan(0.6);
-    expect(cup.fromPriceMinor).toBe(40_000);
+    expect(cup.fromPriceMinor).toBe(50_000);
     expect(events[1].badge).toBe('coming_soon');
     const { statuses, version } = await a.seats('cup-final');
     expect(version).toBe(1);
@@ -167,7 +167,7 @@ describe('local store', () => {
       locale: 'bn',
     });
     if (!paid.ok) throw new Error(`checkout failed: ${paid.reason}`);
-    expect(paid.code).toMatch(/^LP-[2-9A-HJKMNP-Z]{6}$/);
+    expect(paid.code).toMatch(/^DI-[2-9A-HJKMNP-Z]{6}$/);
     const order = (await b.order(paid.code.toLowerCase()))!;
     const event = (await a.getEvent('cup-final'))!;
     const prices = seatPricesMinor(seats, pricingOf(event));

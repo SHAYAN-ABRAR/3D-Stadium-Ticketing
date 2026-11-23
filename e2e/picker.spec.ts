@@ -30,7 +30,7 @@ test('mouse: stand, block and seat picked in 3D, then the VIP upgrade and a hold
   const ticket = page.locator('#ticket-card');
   await expect(ticket).toContainText('Block 232');
   await expect(ticket.getByRole('button', { name: 'Hold 2 seats' })).toBeVisible();
-  await expect(ticket.locator('img')).toBeVisible();
+  await expect(ticket.locator('[data-match-banner]')).toContainText('India');
   await idle(page);
   await shot(page, 'picker-06-seat-ticket');
   expect(page.url()).toContain('block=232');
@@ -124,7 +124,7 @@ test.describe('phone', () => {
     await page.getByRole('button', { name: /^Seat 8,/ }).tap();
     await atLevel(page, 'seat');
     const ticket = page.locator('#ticket-card');
-    await expect(ticket.locator('img')).toBeVisible();
+    await expect(ticket.locator('[data-match-banner]')).toContainText('India');
     await idle(page);
     await shot(page, 'picker-phone-ticket');
     await ticket.getByRole('button', { name: 'Hold 2 seats' }).tap();

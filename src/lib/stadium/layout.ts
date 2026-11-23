@@ -59,7 +59,7 @@ export interface BlockInfo {
   /** 0 at the stand's centre, 1 at its ends. */
   c: number;
   priceClass: PriceClass;
-  /** Default price in AED (major units) for this block's ordinary seats. */
+  /** Default price in taka (major units) for this block's ordinary seats. */
   defaultPrice: number;
   /** Has wheelchair spaces in row 1. */
   accessible: boolean;
@@ -77,7 +77,7 @@ export interface StandInfo {
   blockIndices: readonly number[];
   boxIndices: readonly number[];
   seatCount: number;
-  /** Lowest default price among the stand's blocks (AED). */
+  /** Lowest default price among the stand's blocks (taka). */
   minDefaultPrice: number;
   /** Camera target, label anchor and outward normal. */
   center: Vec3;

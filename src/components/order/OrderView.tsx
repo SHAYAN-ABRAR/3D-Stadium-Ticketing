@@ -1,9 +1,9 @@
 'use client';
 /**
  * The order page. Paid: the ticket "prints" out of a slot and its stub tears off (skipped with reduced
- * motion), then the tickets with QR codes, view pictures, gates and doors time; PDF and calendar downloads
- * made in the browser; the confirmation email in the demo outbox (preview, or another copy). Cancelled or
- * refunded orders say so.
+ * motion), then the tickets with the match header, QR codes, gates and doors time; PDF and calendar
+ * downloads made in the browser; the confirmation email in the demo outbox (preview, or another copy).
+ * Cancelled or refunded orders say so.
  */
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -12,11 +12,11 @@ import { brand } from '@/config/brand';
 import { getStore } from '@/data';
 import { downloadBlob } from '@/lib/download';
 import { loadMessages } from '@/lib/messages';
-import type { OrderInfo, OrderTicketInfo } from '@/lib/orders';
+import type { OrderInfo } from '@/lib/orders';
 import { englishSeatLine } from '@/lib/ticket-text';
+import { MatchBanner } from '../ticket/MatchBanner';
 import { Barcode, Ticket } from '../ticket/Ticket';
 import { QrCode } from '../ticket/QrCode';
-import { TicketPlan } from '../ticket/TicketPlan';
 import { useTicketWords } from '../ticket/useTicketWords';
 import { buttonClass } from '../ui/atoms';
 import { PHONE, useMedia } from '../useMedia';
@@ -34,36 +34,6 @@ export function OrderView(props: OrderViewProps) {
   return props.order.status === 'paid' ? <PaidOrder {...props} /> : <ClosedOrder order={props.order} />;
 }
 
-/** Object URLs of the tickets' seat-view pictures (kept by the data store). */
-function useTicketViews(tickets: OrderTicketInfo[]): Map<string, string> {
-  const [urls, setUrls] = useState<Map<string, string>>(() => new Map());
-  const key = tickets
-    .filter((t) => t.hasView)
-    .map((t) => t.id)
-    .join(',');
-  useEffect(() => {
-    let alive = true;
-    const made: string[] = [];
-    const ids = key ? key.split(',') : [];
-    void Promise.all(ids.map((id) => getStore().ticketView(id))).then((blobs) => {
-      if (!alive) return;
-      const out = new Map<string, string>();
-      blobs.forEach((b, k) => {
-        if (!b) return;
-        const url = URL.createObjectURL(b);
-        made.push(url);
-        out.set(ids[k], url);
-      });
-      setUrls(out);
-    });
-    return () => {
-      alive = false;
-      for (const u of made) URL.revokeObjectURL(u);
-    };
-  }, [key]);
-  return urls;
-}
-
 function PaidOrder({ order, qr, fresh }: OrderViewProps) {
   const t = useTranslations('order');
   const tt = useTranslations('tickets');
@@ -71,7 +41,6 @@ function PaidOrder({ order, qr, fresh }: OrderViewProps) {
   const words = useTicketWords();
   const phone = useMedia(PHONE);
   const tickets = order.tickets;
-  const views = useTicketViews(tickets);
   const eventLine = [
     order.event.competition,
     fmt.date(order.event.startsAt, 'medium'),
@@ -122,7 +91,6 @@ function PaidOrder({ order, qr, fresh }: OrderViewProps) {
         <ol className="mt-5 flex flex-col gap-5" aria-label={t('ticketsLabel')}>
           {tickets.map((tk, k) => {
             const w = words(tk.label);
-            const src = views.get(tk.id);
             const code = qr[tk.id];
             return (
               <li key={tk.id}>
@@ -130,19 +98,16 @@ function PaidOrder({ order, qr, fresh }: OrderViewProps) {
                   label={tt('label', { n: k + 1, count: tickets.length })}
                   layout={phone ? 'stacked' : 'full'}
                   view={
-                    src ? (
-                      // A picture kept in this browser (blob URL): next/image can't optimise it.
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={src}
-                        alt={tt('viewAlt')}
-                        className="absolute inset-0 size-full object-cover"
-                      />
-                    ) : (
-                      <TicketPlan label={tk.label} title={tt('planAlt')} />
-                    )
+                    <MatchBanner
+                      homeTeam={order.event.homeTeam}
+                      awayTeam={order.event.awayTeam}
+                      homeColor={order.event.homeColor}
+                      awayColor={order.event.awayColor}
+                      startsAt={order.event.startsAt}
+                      doorsAt={order.event.doorsAt}
+                      stampRoom={tk.status !== 'valid'}
+                    />
                   }
-                  chip={src ? tt('yourView') : undefined}
                   eventLine={eventLine}
                   kicker={w.kicker}
                   title={w.title}
@@ -165,7 +130,7 @@ function PaidOrder({ order, qr, fresh }: OrderViewProps) {
                       </p>
                     </>
                   }
-                  currency={order.currency}
+                  currency={order.currency === brand.currency ? fmt.sign : order.currency}
                   price={fmt.amount(tk.priceMinor)}
                   code={
                     code ? (
@@ -240,31 +205,29 @@ function PrintIntro({
   );
 }
 
-/** One A6 page per ticket, made in the browser (pdf-lib loads on demand; the PDF is in English). */
+/**
+ * One A6 page per ticket, made in the browser (pdf-lib loads on demand; the PDF is in English). The flags
+ * for its match header are drawn into PNG pictures here first.
+ */
 function PdfButton({ order }: { order: OrderInfo }) {
   const t = useTranslations('order');
   const [busy, setBusy] = useState(false);
   const make = async () => {
     setBusy(true);
     try {
-      const [{ buildTicketsPdf }, messages] = await Promise.all([
+      const [{ buildTicketsPdf }, { flagPng }, messages] = await Promise.all([
         import('@/lib/tickets/pdf'),
+        import('@/lib/tickets/flag-png'),
         loadMessages('en'),
       ]);
-      const views = await Promise.all(order.tickets.map((tk) => getStore().ticketView(tk.id)));
+      const [home, away] = await Promise.all([flagPng(order.event.homeTeam), flagPng(order.event.awayTeam)]);
       const bytes = await buildTicketsPdf({
         orderCode: order.code,
         event: order.event,
         origin: window.location.origin,
         messages,
-        tickets: await Promise.all(
-          order.tickets
-            .filter((tk) => tk.status !== 'void')
-            .map(async (tk) => {
-              const blob = views[order.tickets.indexOf(tk)];
-              return { ...tk, view: blob ? new Uint8Array(await blob.arrayBuffer()) : null };
-            }),
-        ),
+        flags: { home, away },
+        tickets: order.tickets.filter((tk) => tk.status !== 'void'),
       });
       downloadBlob(new Blob([bytes as BlobPart], { type: 'application/pdf' }), `${order.code}.pdf`);
     } finally {

@@ -79,18 +79,18 @@ describe('runs and selections', () => {
       gate: 'N3',
       stand: 'N',
     });
-    expect(s.totalMinor).toBe(250_000);
+    expect(s.totalMinor).toBe(400_000);
     const box = layout.boxes[8];
     const chairs = Array.from({ length: 8 }, (_, k) => box.firstSeat + k);
     const v = summarize(chairs, pricing);
-    expect(v).toMatchObject({ kind: 'vip', box: 9, wholeBox: true, totalMinor: 2_800_000 });
+    expect(v).toMatchObject({ kind: 'vip', box: 9, wholeBox: true, totalMinor: 5_500_000 });
   });
 
   it('upgrades from Block 232 row 10 into Skybox 9, as in the prototype', () => {
     expect(layout.boxes[nearestBox(indexOf(232, 10, 8))].id).toBe(9);
-    expect(upgradeDiffMinor(125_000, 1, pricing)).toBe(250_000);
-    expect(upgradeDiffMinor(250_000, 2, pricing)).toBe(500_000);
-    expect(upgradeDiffMinor(1_000_000, 8, pricing)).toBe(1_800_000);
+    expect(upgradeDiffMinor(200_000, 1, pricing)).toBe(550_000);
+    expect(upgradeDiffMinor(400_000, 2, pricing)).toBe(1_100_000);
+    expect(upgradeDiffMinor(1_600_000, 8, pricing)).toBe(3_900_000);
   });
 
   it('computeStats counts free seats and runs per block', () => {
@@ -125,7 +125,7 @@ describe('store backend', () => {
     const r = await backend.hold(seats);
     expect(r.ok).toBe(true);
     if (!r.ok) return;
-    expect(r.hold.totalMinor).toBe(2 * 125_000);
+    expect(r.hold.totalMinor).toBe(2 * 200_000);
     expect(await statusOf(seats[0])).toBe(1);
     // A sold seat conflicts; the previous hold survives a failed re-hold.
     const { statuses } = await backend.seats();

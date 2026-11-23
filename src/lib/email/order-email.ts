@@ -7,7 +7,7 @@
 import type { AbstractIntlMessages } from 'next-intl';
 import { brand } from '@/config/brand';
 import type { AppLocale } from '@/i18n/config';
-import { formatAmount, formatDate, formatMoney } from '@/lib/format';
+import { currencySign, formatAmount, formatDate, formatMoney } from '@/lib/format';
 import { translatorFor } from '@/lib/messages';
 import type { SeatLabel } from '@/lib/stadium';
 import { ticketText } from '@/lib/ticket-text';
@@ -112,7 +112,7 @@ export function renderOrderEmail(input: OrderEmailInput): RenderedEmail {
         <div style="margin-top:14px">${button(links.ticket(tk.token), t('showTicket'), true)}</div>
       </td>
       <td width="110" style="width:110px;padding:18px 12px;border-left:2px dashed #d6d0c3;text-align:center;vertical-align:middle">
-        <div style="font:700 13px/1 ${body};color:${c.muted}">${esc(order.currency)}</div>
+        <div style="font:700 13px/1 ${body};color:${c.muted}">${esc(order.currency === 'BDT' ? currencySign(locale) : order.currency)}</div>
         <div style="margin-top:8px;font:700 30px/1 ${display};color:${c.pickInk}">${esc(
           formatAmount(tk.priceMinor, locale),
         )}</div>

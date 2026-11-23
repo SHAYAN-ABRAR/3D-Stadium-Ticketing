@@ -4,9 +4,11 @@ import {
   blockFitsRun,
   blockPolygon,
   buildLayout,
+  DEFAULT_PRICES,
   defaultCategories,
   defaultCategoryCode,
   defaultPricing,
+  DEMAND_POINTS,
   getLayout,
   indexOf,
   labelOf,
@@ -42,13 +44,13 @@ describe('layout parity (PROMPT.md section 5)', () => {
     expect(layout.totalSeatCount).toBe(79_556 + 624);
   });
 
-  it('Block 232 is North stand, middle tier, 500 seats, Gate N3, AED 1,250, with row 10 seat 8', () => {
+  it('Block 232 is North stand, middle tier, 500 seats, Gate N3, Tk 2,000, with row 10 seat 8', () => {
     const b = blockById(232)!;
     expect(b.standKey).toBe('N');
     expect(b.tierKey).toBe('M');
     expect(b.seatCount).toBe(500);
     expect(b.gate).toBe('N3');
-    expect(b.defaultPrice).toBe(1250);
+    expect(b.defaultPrice).toBe(2000);
     const i = indexOf(232, 10, 8);
     expect(i).toBeGreaterThanOrEqual(0);
     expect(labelOf(i)).toMatchObject({ kind: 'bowl', block: 232, row: 10, seat: 8, stand: 'N', tier: 'M' });
@@ -138,7 +140,10 @@ describe('layout matches the prototype exactly (tests/fixtures/prototype-layout.
         `block ${i}`,
       ).toEqual({ id: p.id, stand: p.stand, tier: p.tier, first: p.first, count: p.count });
       expect(b.gate).toBe(p.gate);
-      expect(b.defaultPrice).toBe(p.price);
+      // The prototype priced blocks by tier and price class in its own currency: its price is the
+      // block's demand point, which proves the class; the taka price comes from the same class.
+      expect(DEMAND_POINTS[b.tierKey][b.priceClass]).toBe(p.price);
+      expect(b.defaultPrice).toBe(DEFAULT_PRICES[b.tierKey][b.priceClass]);
       expect(b.rowLen).toEqual(p.rowLen);
       expect(b.sa).toBe(p.sa);
       expect(b.sb).toBe(p.sb);
@@ -290,8 +295,8 @@ describe('prices', () => {
 
   it('default categories: one per distinct price, highest first', () => {
     const cats = defaultCategories();
-    expect(cats.map((c) => c.priceMinor / 100)).toEqual([1250, 1050, 950, 850, 800, 750, 650, 550, 450, 400]);
-    expect(cats[0]).toMatchObject({ code: 'C1', name: 'Category 1', priceMinor: 125_000 });
+    expect(cats.map((c) => c.priceMinor / 100)).toEqual([2000, 1600, 1500, 1200, 1000, 800, 600, 500]);
+    expect(cats[0]).toMatchObject({ code: 'C1', name: 'Category 1', priceMinor: 200_000 });
     expect(defaultCategoryCode(blockById(232)!)).toBe('C1');
   });
 
@@ -313,29 +318,29 @@ describe('prices', () => {
 
   it('restricted seats cost one category lower; the cheapest category stays', () => {
     const ladder = pricing.ladderMinor;
-    expect(oneCategoryLower(95_000, ladder)).toBe(85_000);
-    expect(oneCategoryLower(40_000, ladder)).toBe(40_000);
+    expect(oneCategoryLower(150_000, ladder)).toBe(120_000);
+    expect(oneCategoryLower(50_000, ladder)).toBe(50_000);
     const lowerCentre = layout.blocks.find((b) => b.tierKey === 'L' && b.priceClass === 'centre')!;
     const front = lowerCentre.rowFirst[0],
       back = lowerCentre.rowFirst[27];
-    expect(seatPriceMinor(front, pricing)).toBe(95_000);
-    expect(seatPriceMinor(back, pricing)).toBe(85_000);
+    expect(seatPriceMinor(front, pricing)).toBe(150_000);
+    expect(seatPriceMinor(back, pricing)).toBe(120_000);
     // A fixed "Restricted view" price applies instead, but never above the block's own price.
     expect(seatPriceMinor(back, { ...pricing, restrictedMinor: 50_000 })).toBe(50_000);
-    expect(seatPriceMinor(back, { ...pricing, restrictedMinor: 99_000 })).toBe(95_000);
-    expect(seatPriceMinor(front, { ...pricing, restrictedMinor: 50_000 })).toBe(95_000);
+    expect(seatPriceMinor(back, { ...pricing, restrictedMinor: 199_000 })).toBe(150_000);
+    expect(seatPriceMinor(front, { ...pricing, restrictedMinor: 50_000 })).toBe(150_000);
   });
 
-  it('VIP chairs cost AED 3,750; all 8 chairs of a box cost the whole-box price', () => {
+  it('VIP chairs cost Tk 7,500; all 8 chairs of a box cost the whole-box price', () => {
     const box = layout.boxes[8];
     const chairs = Array.from({ length: 8 }, (_, k) => box.firstSeat + k);
-    expect(seatPriceMinor(chairs[0], pricing)).toBe(375_000);
-    expect(totalPriceMinor(chairs.slice(0, 3), pricing)).toBe(3 * 375_000);
-    expect(totalPriceMinor(chairs, pricing)).toBe(2_800_000);
+    expect(seatPriceMinor(chairs[0], pricing)).toBe(750_000);
+    expect(totalPriceMinor(chairs.slice(0, 3), pricing)).toBe(3 * 750_000);
+    expect(totalPriceMinor(chairs, pricing)).toBe(5_500_000);
     expect(wholeBoxOf(chairs)).toBe(8);
     expect(wholeBoxOf(chairs.slice(0, 7))).toBe(-1);
     const two = [indexOf(232, 10, 7), indexOf(232, 10, 8)];
-    expect(totalPriceMinor([...two, ...chairs], pricing)).toBe(2 * 125_000 + 2_800_000);
+    expect(totalPriceMinor([...two, ...chairs], pricing)).toBe(2 * 200_000 + 5_500_000);
   });
 });
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, PDFName, PDFRawStream } from 'pdf-lib';
 import { orderTotals } from '@/lib/orders';
 import {
   defaultPricing,
@@ -31,11 +31,11 @@ describe('ticket tokens and order codes', () => {
   });
 
   it('makes order codes without look-alike characters and reads what visitors type', () => {
-    for (let i = 0; i < 50; i++) expect(newOrderCode()).toMatch(/^LP-[2-9A-HJKMNP-Z]{6}$/);
-    expect(normaliseOrderCode(' lp 7f3k9q ')).toBe('LP-7F3K9Q');
-    expect(normaliseOrderCode('7F3K9Q')).toBe('LP-7F3K9Q');
-    expect(normaliseOrderCode('LP-7F3K90')).toBeNull();
-    expect(normaliseOrderCode('LP-7F3K9')).toBeNull();
+    for (let i = 0; i < 50; i++) expect(newOrderCode()).toMatch(/^DI-[2-9A-HJKMNP-Z]{6}$/);
+    expect(normaliseOrderCode(' di 7f3k9q ')).toBe('DI-7F3K9Q');
+    expect(normaliseOrderCode('7F3K9Q')).toBe('DI-7F3K9Q');
+    expect(normaliseOrderCode('DI-7F3K90')).toBeNull();
+    expect(normaliseOrderCode('DI-7F3K9')).toBeNull();
   });
 });
 
@@ -73,22 +73,22 @@ describe('totals and prices', () => {
 describe('calendar file', () => {
   it('uses UTC times with the venue time zone, escapes text and folds long lines', () => {
     const ics = buildIcs({
-      uid: 'LP-ABCDEF@tickets.example.test',
-      title: 'Rangers v Eastbridge, Cup Final; late',
-      description: `Order LP-ABCDEF\nBlock 232, Row 10, Seat 7\n${'x'.repeat(200)}`,
-      location: 'Linden Park Stadium, 1 Parkside Avenue',
-      url: 'https://tickets.example.test/orders/LP-ABCDEF',
-      start: new Date('2026-12-12T15:30:00Z'),
+      uid: 'DI-ABCDEF@tickets.example.test',
+      title: 'Bangladesh v India, Cup Final; late',
+      description: `Order DI-ABCDEF\nBlock 232, Row 10, Seat 7\n${'x'.repeat(200)}`,
+      location: 'Dhaka International Stadium, Begum Rokeya Sarani, Mirpur 10, Dhaka, Bangladesh',
+      url: 'https://tickets.example.test/orders/DI-ABCDEF',
+      start: new Date('2026-12-12T13:30:00Z'),
       created: new Date('2026-11-21T10:00:00Z'),
     });
-    expect(ics).toContain('DTSTART:20261212T153000Z');
-    expect(ics).toContain('DTEND:20261212T173000Z');
-    expect(ics).toContain('X-WR-TIMEZONE:Asia/Dubai');
-    expect(ics).toContain('TZOFFSETTO:+0400');
-    expect(ics).toContain('SUMMARY:Rangers v Eastbridge\\, Cup Final\\; late');
+    expect(ics).toContain('DTSTART:20261212T133000Z');
+    expect(ics).toContain('DTEND:20261212T153000Z');
+    expect(ics).toContain('X-WR-TIMEZONE:Asia/Dhaka');
+    expect(ics).toContain('TZOFFSETTO:+0600');
+    expect(ics).toContain('SUMMARY:Bangladesh v India\\, Cup Final\\; late');
     for (const line of ics.split('\r\n')) expect(Buffer.byteLength(line)).toBeLessThanOrEqual(75);
     expect(ics.replace(/\r\n /g, '')).toContain(
-      `DESCRIPTION:Order LP-ABCDEF\\nBlock 232\\, Row 10\\, Seat 7\\n${'x'.repeat(200)}`,
+      `DESCRIPTION:Order DI-ABCDEF\\nBlock 232\\, Row 10\\, Seat 7\\n${'x'.repeat(200)}`,
     );
   });
 });
@@ -177,12 +177,12 @@ describe('QR codes, PDF and email', () => {
   const bowl = labelOf(indexOf(232, 10, 7)) as SeatLabel;
   const vip = labelOf(L.boxes[8].firstSeat + 2) as SeatLabel;
   const event = {
-    title: 'Rangers v Eastbridge',
+    title: 'Bangladesh v India',
     competition: 'Cup Final',
-    homeTeam: 'Rangers',
-    awayTeam: 'Eastbridge',
-    startsAt: Date.parse('2026-12-12T15:30:00Z'),
-    doorsAt: Date.parse('2026-12-12T14:00:00Z'),
+    homeTeam: 'Bangladesh',
+    awayTeam: 'India',
+    startsAt: Date.parse('2026-12-12T13:30:00Z'),
+    doorsAt: Date.parse('2026-12-12T12:00:00Z'),
   };
 
   it('draws a QR code', () => {
@@ -193,24 +193,22 @@ describe('QR codes, PDF and email', () => {
 
   it('writes one A6 page per ticket, in English, dropping names the PDF fonts cannot show', async () => {
     const bytes = await buildTicketsPdf({
-      orderCode: 'LP-ABCDEF',
+      orderCode: 'DI-ABCDEF',
       event,
       origin: ORIGIN,
       messages: await loadMessages('en'),
       tickets: [
         {
           label: bowl,
-          priceMinor: 125_000,
+          priceMinor: 200_000,
           holderName: 'José Müller',
           token: newTicketToken(),
-          view: null,
         },
         {
           label: vip,
-          priceMinor: 375_000,
+          priceMinor: 750_000,
           holderName: 'রহিম উদ্দিন',
           token: newTicketToken(),
-          view: null,
         },
       ],
     });
@@ -221,32 +219,71 @@ describe('QR codes, PDF and email', () => {
     expect([Math.round(w), Math.round(h)]).toEqual([298, 420]);
   });
 
+  it('puts the flags in the match header, embedded once for all the pages', async () => {
+    // A 1 × 1 PNG stands in for a flag the browser drew; the away team has none and gets its colour.
+    const png = Uint8Array.from(
+      Buffer.from(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+        'base64',
+      ),
+    );
+    const pdfWith = async (count: number, flags?: { home: Uint8Array | null; away: Uint8Array | null }) => {
+      const bytes = await buildTicketsPdf({
+        orderCode: 'DI-ABCDEF',
+        event: { ...event, homeColor: '#006a4e', awayColor: '#1d5fbf' },
+        origin: ORIGIN,
+        messages: await loadMessages('en'),
+        flags,
+        tickets: Array.from({ length: count }, () => ({
+          label: bowl,
+          priceMinor: 200_000,
+          holderName: null,
+          token: newTicketToken(),
+        })),
+      });
+      const doc = await PDFDocument.load(bytes);
+      const images = doc.context
+        .enumerateIndirectObjects()
+        .filter(
+          ([, obj]) =>
+            obj instanceof PDFRawStream && obj.dict.get(PDFName.of('Subtype')) === PDFName.of('Image'),
+        );
+      return { pages: doc.getPageCount(), images: images.length };
+    };
+    const one = await pdfWith(1, { home: png, away: null });
+    expect(one.images).toBeGreaterThan(0);
+    expect(await pdfWith(3, { home: png, away: null })).toEqual({ pages: 3, images: one.images });
+    expect(await pdfWith(1)).toEqual({ pages: 1, images: 0 });
+  });
+
   it('escapes everything a visitor typed and follows the visitor’s language', async () => {
     const input = {
       locale: 'en' as const,
       messages: await loadMessages('en'),
       siteUrl: ORIGIN,
       order: {
-        code: 'LP-ABCDEF',
+        code: 'DI-ABCDEF',
         name: '<script>alert(1)</script>',
-        currency: 'AED',
+        currency: 'BDT',
         feesMinor: 0,
         taxMinor: 0,
-        totalMinor: 125_000,
+        totalMinor: 200_000,
       },
       event,
-      tickets: [{ label: bowl, priceMinor: 125_000, holderName: `O'Brien & "Co"`, token: 'tok' }],
+      tickets: [{ label: bowl, priceMinor: 200_000, holderName: `O'Brien & "Co"`, token: 'tok' }],
     };
     const mail = renderOrderEmail(input);
-    expect(mail.subject).toBe('Your tickets: Rangers v Eastbridge · LP-ABCDEF');
+    expect(mail.subject).toBe('Your tickets: Bangladesh v India · DI-ABCDEF');
     expect(mail.html).not.toContain('<script>alert(1)');
     expect(mail.html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
     expect(mail.html).toContain('O&#39;Brien &amp; &quot;Co&quot;');
     expect(mail.html).toContain(`${ORIGIN}/tickets/tok`);
-    expect(mail.html).toContain(`${ORIGIN}/orders/LP-ABCDEF`);
+    expect(mail.html).toContain(`${ORIGIN}/orders/DI-ABCDEF`);
     expect(mail.text).toContain('Block 232 · Row 10 · Seat 7');
+    expect(mail.text).toContain('Tk 2,000');
     const bn = renderOrderEmail({ ...input, locale: 'bn', messages: await loadMessages('bn') });
-    expect(bn.subject).toBe('আপনার টিকিট: Rangers বনাম Eastbridge · LP-ABCDEF');
+    expect(bn.subject).toBe('আপনার টিকিট: Bangladesh বনাম India · DI-ABCDEF');
+    expect(bn.text).toContain('২,০০০৳');
     expect(bn.html).toContain('lang="bn"');
   });
 });
