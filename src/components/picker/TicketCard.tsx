@@ -1,7 +1,8 @@
 'use client';
 /**
  * The ticket card in the picker: seat ticket, skybox ticket and VIP ticket, with the match header (both
- * teams' flags). Bottom-centre from 641 px; a stacked bottom sheet on phones (collapsible to look around).
+ * teams' flags). Bottom-centre from 641 px, a stacked bottom sheet on phones; both can be hidden to look
+ * around.
  */
 import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
@@ -229,10 +230,14 @@ export function TicketCard() {
     };
   }
 
-  // The stamp goes across the match header's top-left corner, which the header then keeps clear.
+  // The stamp goes across the match header's top-left corner, which the header then keeps clear; it is
+  // part of the ticket, so it tilts with it.
   const stamped = held && !!s.hold;
   const stamp = stamped ? (
-    <HeldStamp expiresAt={s.hold!.expiresAt} className={phone ? 'top-3 left-3.5' : 'top-4.5 left-4.5'} />
+    <HeldStamp
+      expiresAt={s.hold!.expiresAt}
+      className={phone ? 'top-3 left-3.5 z-[3]' : 'top-4.5 left-4.5 z-[3]'}
+    />
   ) : null;
   const prewarm = warm ? <PrewarmView view={warm} /> : null;
   const ticket = (
@@ -258,8 +263,22 @@ export function TicketCard() {
       note={props.note}
       currency={fmt.sign}
       price={fmt.amount(props.price)}
-      code={<Barcode seed={props.seed} className={phone ? 'h-[84px] w-11' : undefined} />}
+      code={<Barcode seed={props.seed} horizontal={phone} />}
+      stamp={stamp}
     />
+  );
+
+  // Hiding the ticket leaves only this button, so the 3D view re-frames into the space it frees (the
+  // measured box shrinks).
+  const toggle = (
+    <button
+      type="button"
+      onClick={() => setCollapsed((c) => !c)}
+      aria-expanded={!collapsed}
+      className="pointer-events-auto mx-auto mb-1 flex min-h-9 items-center gap-2 rounded-full bg-ink/80 px-4 text-sm font-semibold text-white"
+    >
+      {collapsed ? t('showTicket') : t('hideTicket')}
+    </button>
   );
 
   if (phone) {
@@ -269,35 +288,24 @@ export function TicketCard() {
         id="ticket-card"
         className="fixed inset-x-2 bottom-2 z-20 max-h-[calc(100%-120px)]"
       >
-        <button
-          type="button"
-          onClick={() => setCollapsed((c) => !c)}
-          aria-expanded={!collapsed}
-          className="mx-auto mb-1 flex min-h-9 items-center gap-2 rounded-full bg-ink/80 px-4 text-sm font-semibold text-white"
-        >
-          {collapsed ? t('showTicket') : t('hideTicket')}
-        </button>
+        {toggle}
         {prewarm}
         {collapsed ? null : (
-          <div className="relative max-h-[calc(100dvh-170px)] overflow-y-auto rounded-[14px]">
-            {ticket}
-            {stamp}
-          </div>
+          <div className="relative max-h-[calc(100dvh-170px)] overflow-y-auto">{ticket}</div>
         )}
       </MeasuredBox>
     );
   }
+  // The box is as wide as the ticket; around the button alone it lets drags through to the 3D view.
   return (
     <MeasuredBox
       sizeKey="ticketBox"
       id="ticket-card"
-      className="fixed bottom-5 left-1/2 z-20 w-[min(880px,calc(100%-32px))] -translate-x-1/2 tab:bottom-2 desk:bottom-5"
+      className="pointer-events-none fixed bottom-5 left-1/2 z-20 w-[min(880px,calc(100%-32px))] -translate-x-1/2 tab:bottom-2 desk:bottom-5"
     >
+      {toggle}
       {prewarm}
-      <div className="relative">
-        {ticket}
-        {stamp}
-      </div>
+      {collapsed ? null : <div className="pointer-events-auto relative">{ticket}</div>}
     </MeasuredBox>
   );
 }

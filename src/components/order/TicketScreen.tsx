@@ -11,6 +11,7 @@ import { getStore } from '@/data';
 import { useStoreQuery } from '@/data/hooks';
 import { isTicketToken } from '@/lib/tickets/codes';
 import { qrPath, ticketUrl } from '@/lib/tickets/qr';
+import { MatchTitle } from '../events/TeamFlag';
 import { QrCode } from '../ticket/QrCode';
 import { TicketPlan } from '../ticket/TicketPlan';
 import { useTicketWords } from '../ticket/useTicketWords';
@@ -53,7 +54,13 @@ export function TicketScreen({ token }: { token: string }) {
           {order.event.competition} · {fmt.date(order.event.startsAt, 'medium')}
         </p>
         <h1 id="ticket-title" className="font-display text-3xl leading-tight font-bold">
-          {order.event.title}
+          <MatchTitle
+            homeTeam={order.event.homeTeam}
+            awayTeam={order.event.awayTeam}
+            homeColor={order.event.homeColor}
+            awayColor={order.event.awayColor}
+            vsClassName="font-semibold opacity-70"
+          />
         </h1>
         <p className="text-sm opacity-90">
           {tt('kickoff', { time: fmt.date(order.event.startsAt, 'time') })} ·{' '}

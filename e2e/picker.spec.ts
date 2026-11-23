@@ -96,6 +96,11 @@ test('deep link opens the seat view directly', async ({ page }) => {
   const ticket = page.locator('#ticket-card');
   await expect(ticket).toContainText('Block 232');
   await expect(ticket).toContainText('10');
+  // The ticket can be hidden for a clearer view, and brought back.
+  await ticket.getByRole('button', { name: 'Hide ticket to look around' }).click();
+  await expect(ticket.locator('[data-match-banner]')).toHaveCount(0);
+  await ticket.getByRole('button', { name: 'Show ticket' }).click();
+  await expect(ticket.locator('[data-match-banner]')).toContainText('India');
   expect(errors).toEqual([]);
 });
 

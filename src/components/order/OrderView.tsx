@@ -6,7 +6,7 @@
  * Cancelled or refunded orders say so.
  */
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { brand } from '@/config/brand';
 import { getStore } from '@/data';
@@ -14,6 +14,7 @@ import { downloadBlob } from '@/lib/download';
 import { loadMessages } from '@/lib/messages';
 import type { OrderInfo } from '@/lib/orders';
 import { englishSeatLine } from '@/lib/ticket-text';
+import { MatchTitle } from '../events/TeamFlag';
 import { MatchBanner } from '../ticket/MatchBanner';
 import { Barcode, Ticket } from '../ticket/Ticket';
 import { QrCode } from '../ticket/QrCode';
@@ -57,12 +58,20 @@ function PaidOrder({ order, qr, fresh }: OrderViewProps) {
   }, [fresh, order.code]);
 
   const first = tickets[0];
+  const match = (
+    <MatchTitle
+      homeTeam={order.event.homeTeam}
+      awayTeam={order.event.awayTeam}
+      homeColor={order.event.homeColor}
+      awayColor={order.event.awayColor}
+    />
+  );
   return (
     <>
       {fresh && first ? (
         <PrintIntro
           title={words(first.label).title}
-          line={order.event.title}
+          line={match}
           price={fmt.amount(first.priceMinor)}
           seed={first.seatIndex}
           printing={t('printing')}
@@ -82,7 +91,7 @@ function PaidOrder({ order, qr, fresh }: OrderViewProps) {
           </Link>
         </div>
         <div className="mt-5 rounded-card bg-paper-2 px-4 py-3">
-          <p className="font-semibold">{order.event.title}</p>
+          <p className="font-semibold">{match}</p>
           <p className="text-sm text-muted">
             {fmt.date(order.event.startsAt, 'long')} · {times}
           </p>
@@ -143,7 +152,6 @@ function PaidOrder({ order, qr, fresh }: OrderViewProps) {
                     ) : null
                   }
                   stamp={tk.status === 'valid' ? undefined : tt(`status.${tk.status}`)}
-                  notch="var(--color-paper)"
                 />
               </li>
             );
@@ -172,7 +180,7 @@ function PrintIntro({
   printing,
 }: {
   title: string;
-  line: string;
+  line: ReactNode;
   price: string;
   seed: number;
   printing: string;

@@ -62,10 +62,12 @@ safe); `store.ts` is the zustand store and the two-way bridge (engine events in,
 arrive as `select` events and the store decides what happens. `src/components/plan/StadiumPlan.tsx` is
 the SVG plan used without WebGL, on the ticket page when no seat view was saved, and on the venue page.
 
-Tickets (`src/components/ticket/`): `Ticket` is the ticket layout (header area, details, perforated stub)
-and `MatchBanner` its match header: both teams' flags (`public/flags`, looked up in
-`src/lib/events/flags.ts`), the venue, the date and the times. The PDF mirrors it, with the flags drawn
-into PNG pictures in the browser first (`src/lib/tickets/flag-png.ts`), since pdf-lib can't draw SVG.
+Tickets (`src/components/ticket/`): `Ticket` is the ticket layout (header area, details, stub) on
+`TicketShell`, the notched sheet that tilts towards the pointer (react-parallax-tilt; stub on the right,
+or at the bottom on phones), and `MatchBanner` its match header: both teams' flags (`public/flags`, looked
+up in `src/lib/events/flags.ts`), the venue, the date and the times. The PDF mirrors it, with the flags
+drawn into PNG pictures in the browser first (`src/lib/tickets/flag-png.ts`), since pdf-lib can't draw
+SVG. `src/components/events/TeamFlag.tsx` puts the flags beside the team names wherever a match is named.
 
 Data flow on the event page: the data store's seats (a full read, then live changes from this tab, other
 tabs and the sales simulator) → `StoreBackend` → picker store (`statuses`) → `engine.setStatuses` /

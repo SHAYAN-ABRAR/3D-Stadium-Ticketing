@@ -22,6 +22,7 @@ email is ever sent.
   adjacent free seats, and "Best available" ranks every run in the stadium.
 - Filters for price, wheelchair spaces and restricted views; hover tooltips with live view thumbnails; a
   keyboard path through the seat list; touch sheets on phones.
+- The ticket can be hidden to look around from the seat; the view re-frames into the space it frees.
 - A "Your view" picture of every seat, rendered on the fly: in the hover thumbnails and on each ticket's
   page.
 
@@ -44,14 +45,15 @@ email is ever sent.
   broadcast to every open tab, so two tabs behave like two visitors (and can't take the same seat).
 - Simulated buyers hold and buy seats while an event page is open, so availability changes live.
 - A demo card form (Luhn, expiry and security-code checks; only the brand and last four digits are kept).
-- Tickets look like real match tickets: both teams' flags with "VS", the venue, the date and the times,
-  then the seat, a perforated stub and, once paid, a QR code. They download as a PDF and a calendar file,
-  both made in the browser. The confirmation email goes to a local outbox and can be previewed.
+- Tickets look like real match tickets: a notched paper ticket that tilts towards the pointer, with both
+  teams' flags and "VS", the venue, the date and the times, then the seat and a perforated stub with, once
+  paid, a QR code. They download as a PDF and a calendar file, both made in the browser. The confirmation
+  email goes to a local outbox and can be previewed.
 
 **The site**
 
 - Home page with the 3D stadium as its hero, events with filters, venue information with a gates plan,
-  questions, sample legal pages, Open Graph images.
+  questions, sample legal pages, Open Graph images. Each match shows both teams' flags.
 - English and Bengali throughout, with dates in Dhaka time and prices in taka (Tk in English, ৳ in Bengali).
 - Accessible: keyboard navigation, screen-reader labels, AA contrast, reduced motion respected.
 
@@ -97,7 +99,7 @@ production domain is used automatically).
 | UI             | `src/components/`, `src/app/` | Next.js App Router, React 19, Tailwind CSS 4, Radix UI, next-intl.                                                              |
 
 Stack: Next.js 16, React 19, TypeScript 6, three.js r187 with postprocessing and N8AO, Dexie 4, Tailwind
-CSS 4, next-intl 4, pdf-lib, qrcode, Vitest 5, Playwright. The flags on the tickets are from
+CSS 4, next-intl 4, pdf-lib, qrcode, react-parallax-tilt, Vitest 5, Playwright. The flags are from
 [flag-icons](https://github.com/lipis/flag-icons) (MIT licence, in `public/flags/`).
 
 More detail: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and the decision log

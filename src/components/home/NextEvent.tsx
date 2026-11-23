@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import type { EventSummary } from '@/data/store';
 import { buttonClass } from '../ui/atoms';
-import { EventBadgeChip, TeamDot } from '../events/EventCard';
+import { EventBadgeChip } from '../events/EventCard';
+import { MatchTitle } from '../events/TeamFlag';
 import { useClock } from '../useClock';
 import { useFormat } from '../useFormat';
 
@@ -58,15 +59,12 @@ export function NextEventCard({ s, loading }: { s: EventSummary | null; loading:
       </div>
       <p className="mt-2 text-sm font-semibold text-muted">{e.competition}</p>
       <h2 id="next-event" className="font-display text-[26px] leading-tight font-bold">
-        <span className="inline-flex items-center gap-2">
-          <TeamDot color={e.homeColor} />
-          {e.homeTeam}
-        </span>{' '}
-        <span className="font-semibold text-muted">v</span>{' '}
-        <span className="inline-flex items-center gap-2">
-          <TeamDot color={e.awayColor} />
-          {e.awayTeam}
-        </span>
+        <MatchTitle
+          homeTeam={e.homeTeam}
+          awayTeam={e.awayTeam}
+          homeColor={e.homeColor}
+          awayColor={e.awayColor}
+        />
       </h2>
       <p className="mt-1 text-sm text-muted">
         {fmt.date(e.startsAt, 'medium')} · {t('kickoffAt', { time: fmt.date(e.startsAt, 'time') })}

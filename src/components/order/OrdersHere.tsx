@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useStoreQuery } from '@/data/hooks';
+import { MatchTitle } from '../events/TeamFlag';
 import { useFormat } from '../useFormat';
 
 export function OrdersHere() {
@@ -25,7 +26,15 @@ export function OrdersHere() {
               >
                 <span>
                   <b className="font-display text-xl tracking-wide">{o.code}</b>{' '}
-                  <span className="text-muted">{o.event.title}</span>
+                  <span className="text-muted">
+                    <MatchTitle
+                      homeTeam={o.event.homeTeam}
+                      awayTeam={o.event.awayTeam}
+                      homeColor={o.event.homeColor}
+                      awayColor={o.event.awayColor}
+                      vsClassName="text-muted"
+                    />
+                  </span>
                 </span>
                 <span className="text-sm text-muted">
                   {t('orderLine', { count: o.tickets.length, date: fmt.date(o.event.startsAt, 'medium') })}

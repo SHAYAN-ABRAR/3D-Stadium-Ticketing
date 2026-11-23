@@ -27,6 +27,7 @@ import type { PublicEvent } from '@/lib/events/types';
 import { formatCountdown } from '@/lib/format';
 import type { OrderTotals } from '@/lib/orders';
 import type { SeatLabel } from '@/lib/stadium';
+import { MatchTitle } from '../events/TeamFlag';
 import { MatchBanner } from '../ticket/MatchBanner';
 import { Barcode, Ticket } from '../ticket/Ticket';
 import { useTicketWords } from '../ticket/useTicketWords';
@@ -180,7 +181,14 @@ export function CheckoutForm({ event, hold, lines, totals }: CheckoutFormProps) 
           {t('back')}
         </Link>
         <h1 className="mt-2 font-display text-5xl leading-none font-bold">{t('title')}</h1>
-        <p className="mt-2 font-semibold">{event.title}</p>
+        <p className="mt-2 font-semibold">
+          <MatchTitle
+            homeTeam={event.homeTeam}
+            awayTeam={event.awayTeam}
+            homeColor={event.homeColor}
+            awayColor={event.awayColor}
+          />
+        </p>
         <p className="text-sm text-muted">{eventLine}</p>
         <h2 id="checkout-tickets" className="mt-6 font-display text-2xl font-bold">
           {t('tickets')} · {t('count', { count })}
@@ -209,10 +217,7 @@ export function CheckoutForm({ event, hold, lines, totals }: CheckoutFormProps) 
                   facts={w.facts}
                   currency={fmt.sign}
                   price={fmt.amount(l.priceMinor)}
-                  code={
-                    <Barcode seed={l.seatIndex * 7 + 1} className={phoneLayout ? 'h-21 w-11' : undefined} />
-                  }
-                  notch="var(--color-paper)"
+                  code={<Barcode seed={l.seatIndex * 7 + 1} horizontal={phoneLayout} />}
                 />
               </li>
             );

@@ -1,6 +1,6 @@
 'use client';
 /**
- * An event in a list (PROMPT.md 8): a date block, the teams with their colours, kick-off in venue time, the
+ * An event in a list (PROMPT.md 8): a date block, the teams with their flags, kick-off in venue time, the
  * "from" price, an availability meter and a status badge (On sale, Few left, Sold out, Coming soon).
  */
 import Link from 'next/link';
@@ -10,6 +10,7 @@ import type { EventBadge } from '@/lib/events/summary';
 import { dateParts } from '@/lib/format';
 import { buttonClass, Meter } from '../ui/atoms';
 import { useFormat } from '../useFormat';
+import { MatchTitle } from './TeamFlag';
 
 const BADGE: Record<EventBadge, string> = {
   on_sale: 'bg-success-soft text-success',
@@ -26,16 +27,6 @@ export function EventBadgeChip({ badge }: { badge: EventBadge }) {
     <span className={`rounded-full px-2.5 py-1 text-xs font-bold whitespace-nowrap ${BADGE[badge]}`}>
       {t(badge)}
     </span>
-  );
-}
-
-export function TeamDot({ color }: { color: string }) {
-  return (
-    <span
-      aria-hidden
-      className="inline-block size-3 flex-none rounded-full ring-2 ring-white inset-ring inset-ring-black/20"
-      style={{ background: color }}
-    />
   );
 }
 
@@ -64,15 +55,12 @@ export function EventCard({ s, as: Heading = 'h3' }: { s: EventSummary; as?: 'h2
           <EventBadgeChip badge={s.badge} />
         </div>
         <Heading className="font-display text-[22px] leading-tight font-bold tab:text-2xl">
-          <span className="inline-flex items-center gap-2">
-            <TeamDot color={e.homeColor} />
-            {e.homeTeam}
-          </span>{' '}
-          <span className="font-semibold text-muted">v</span>{' '}
-          <span className="inline-flex items-center gap-2">
-            <TeamDot color={e.awayColor} />
-            {e.awayTeam}
-          </span>
+          <MatchTitle
+            homeTeam={e.homeTeam}
+            awayTeam={e.awayTeam}
+            homeColor={e.homeColor}
+            awayColor={e.awayColor}
+          />
         </Heading>
         <p className="text-sm text-muted">
           <span className="sr-only">{fmt.date(e.startsAt, 'long')} · </span>
