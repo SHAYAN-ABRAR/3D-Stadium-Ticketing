@@ -31,6 +31,7 @@ scope.onmessage = async () => {
       seatColors: out.seatColors,
       trees: out.trees,
       cars: out.cars,
+      city: out.city,
       shadowMask: out.shadowMask,
       ground,
       flipped: true,
@@ -40,6 +41,7 @@ scope.onmessage = async () => {
       out.seatColors.buffer,
       out.trees.buffer,
       out.cars.buffer,
+      ...Object.values(out.city).map((a) => a.buffer),
       out.shadowMask.buffer,
       ground,
     ]);

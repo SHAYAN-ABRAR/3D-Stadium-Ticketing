@@ -28,12 +28,20 @@ email is ever sent.
 
 **Graphics and animation** (three.js with post-processing)
 
-- Golden hour, day and night match lighting with smooth transitions, a physical sky with clouds, bloom on
-  floodlights, LED ribbons and lit windows, and on the High tier ambient occlusion plus a depth-of-field
-  "Your view" picture.
+- Golden hour, day, blue hour and night match lighting with smooth transitions, a physical sky with clouds,
+  bloom on floodlights, LED ribbons and lit windows, and on the High tier ambient occlusion plus a
+  depth-of-field "Your view" picture.
 - A match-day crowd: a spectator in every sold seat (camera-facing sprites from an atlas drawn in code, in
   the two teams' colours, with an away end), low-poly 3D people near the camera on the High tier, idle
   motion, and a Mexican wave that travels round the bowl (the home page's crowd starts one now and then).
+- A live match on the pitch whenever the crowd is in: 22 players in the teams' colours, the referee, two
+  assistants and the ball, playing a simple simulation (shape, passing, pressing, tackles, shots and saves,
+  throw-ins, corners and goal kicks). A goal sends the scorer to the corner flag, the scoring side's fans
+  jump, and the big screens and ribbons flash "GOAL!".
+- The neighbourhood around the park: about 9,500 procedural blocks of flats in Dhaka's facade colours, with
+  lanes, shops along the main roads, stair rooms and water tanks on the roofs, eleven mosques and street
+  lights; windows light up at dusk. MRT Line 6 runs past on its viaduct, with Mirpur 10 station and trains
+  that stop and pull away.
 - Scrolling LED boards with a live kick-off countdown, a procedural pitch with crisp markings, goal nets,
   waving flags, roof cables, swaying trees and drifting cloud shadows.
 - Low, Medium and High quality tiers, chosen automatically from measured frame times; the renderer sleeps
@@ -57,7 +65,9 @@ email is ever sent.
 - English and Bengali throughout, with dates in Dhaka time and prices in taka (Tk in English, ৳ in Bengali).
 - Accessible: keyboard navigation, screen-reader labels, AA contrast, reduced motion respected.
 
-![A seat view with the crowd, and its ticket](docs/screenshots/seat-view.jpg)
+![A seat view with the crowd and the match, and its ticket](docs/screenshots/seat-view.jpg)
+
+![Blue hour over the neighbourhood, with MRT Line 6 and Mirpur 10 station](docs/screenshots/blue-hour.jpg)
 
 ![Night match](docs/screenshots/night.jpg)
 

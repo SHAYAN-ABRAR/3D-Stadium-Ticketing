@@ -17,6 +17,9 @@ export interface SkyParams {
   /** Brightness of the sky against the scene's exposure. */
   gain: number;
   clouds: number;
+  /** Colour grade from the horizon up to the zenith (linear RGB multipliers; 1, 1, 1 leaves the sky as it is). */
+  horizonTint: readonly [number, number, number];
+  zenithTint: readonly [number, number, number];
 }
 
 const SKY_SIZE = 9000;
@@ -34,9 +37,17 @@ export function makeSky(): Sky {
   const sky = new Sky();
   const mat = sky.material as THREE.ShaderMaterial;
   mat.uniforms.skyGain = { value: 0.55 };
+  mat.uniforms.skyHorizonTint = { value: new THREE.Vector3(1, 1, 1) };
+  mat.uniforms.skyZenithTint = { value: new THREE.Vector3(1, 1, 1) };
   mat.fragmentShader = mat.fragmentShader
-    .replace('uniform float time;', 'uniform float time;\nuniform float skyGain;')
-    .replace('gl_FragColor = vec4( texColor, 1.0 );', 'gl_FragColor = vec4( texColor * skyGain, 1.0 );');
+    .replace(
+      'uniform float time;',
+      'uniform float time;\nuniform float skyGain;\nuniform vec3 skyHorizonTint;\nuniform vec3 skyZenithTint;',
+    )
+    .replace(
+      'gl_FragColor = vec4( texColor, 1.0 );',
+      'gl_FragColor = vec4( texColor * skyGain * mix( skyHorizonTint, skyZenithTint, sqrt( clamp( direction.y, 0.0, 1.0 ) ) ), 1.0 );',
+    );
   sky.scale.setScalar(SKY_SIZE);
   sky.frustumCulled = false;
   sky.renderOrder = -10;
@@ -56,8 +67,11 @@ export function setSky(sky: Sky, p: SkyParams) {
   u.mieCoefficient.value = p.mie;
   u.mieDirectionalG.value = p.mieG;
   u.skyGain.value = p.gain;
+  (u.skyHorizonTint.value as THREE.Vector3).set(...p.horizonTint);
+  (u.skyZenithTint.value as THREE.Vector3).set(...p.zenithTint);
   u.cloudCoverage.value = p.clouds;
-  u.showSunDisc.value = p.elevation > -1 ? 1 : 0;
+  // The disc only once the sun is clearly up (blue hour keeps it just below the horizon).
+  u.showSunDisc.value = p.elevation > 0.5 ? 1 : 0;
   dirFrom(p.elevation, p.azimuth, u.sunPosition.value).multiplyScalar(SUN_DISTANCE);
 }
 

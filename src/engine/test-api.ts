@@ -4,6 +4,7 @@
  */
 import { blockById, indexOf } from '@/lib/stadium';
 import type { StadiumEngine } from './StadiumEngine';
+import type { LightingPreset } from './types';
 
 export interface StadiumTestApi {
   readonly ready: boolean;
@@ -13,6 +14,8 @@ export interface StadiumTestApi {
   readonly tier: string;
   /** Frames rendered so far (the scheduler renders nothing while idle). */
   readonly frames: number;
+  /** A frame is scheduled or a flight runs (false = the engine sleeps until something changes). */
+  readonly busy: boolean;
   /** The visitor's chosen seats (orange). */
   readonly selection: number[];
   goOverview(): Promise<boolean>;
@@ -24,12 +27,18 @@ export interface StadiumTestApi {
   goBox(id: number): Promise<boolean>;
   goVip(chair: number): Promise<boolean>;
   /** Switches the lighting preset at once (no transition). */
-  setLighting(preset: 'golden' | 'day' | 'night'): void;
+  setLighting(preset: LightingPreset): void;
   readonly lighting: string;
   /** The crowd toggle, whether the crowd is on screen, and the Mexican wave. */
   setCrowd(on: boolean): void;
   readonly crowd: boolean;
   readonly crowdVisible: boolean;
+  /** The players on the pitch (shown with the crowd). */
+  readonly matchVisible: boolean;
+  /** Visual checks: plays the match on to its next goal (returns the scoring team, or -1). */
+  forwardToGoal(): number;
+  /** Visual checks: points the camera from `eye` at `target`. */
+  peek(eye: [number, number, number], target: [number, number, number], fov?: number): void;
   /** Starts a wave (false when the crowd isn't shown); stopWave ends it at once. */
   wave(): boolean;
   stopWave(): void;
@@ -74,6 +83,9 @@ export function installTestApi(engine: StadiumEngine): () => void {
     get frames() {
       return engine.renderedFrames;
     },
+    get busy() {
+      return engine.busy;
+    },
     get selection() {
       return engine.selectionSnapshot;
     },
@@ -100,6 +112,11 @@ export function installTestApi(engine: StadiumEngine): () => void {
     get crowdVisible() {
       return engine.crowdVisible;
     },
+    get matchVisible() {
+      return engine.matchVisible;
+    },
+    forwardToGoal: () => engine.forwardToGoal(),
+    peek: (eye, target, fov) => engine.peek(eye, target, fov),
     wave: () => engine.startWave(),
     stopWave: () => engine.stopWave(),
     get waving() {

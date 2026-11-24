@@ -7,14 +7,15 @@
  */
 import { CX, CZ, L0, P0, planAt, R0, realLen, sAtLen, W0, type PlanPoint } from '@/lib/stadium/plan';
 import { clamp, noise2, rng } from '@/lib/stadium/random';
+import { METRO, ROUNDABOUT } from './city-data';
 
 const PI = Math.PI,
   TAU = PI * 2;
 
 export type Ctx2D = CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
 
-/** The painted ground square (metres) and its canvas size (pixels). */
-export const GROUND = 1600;
+/** The painted ground square (metres) and its canvas size (pixels). The city starts just beyond it. */
+export const GROUND = 860;
 export const GROUND_PX = 2048;
 const GK = GROUND_PX / GROUND;
 const gx = (x: number) => (x + GROUND / 2) * GK;
@@ -127,6 +128,24 @@ function offsetOf(x: number, z: number): number {
     pz = clamp(z, -CZ, CZ);
   return Math.hypot(x - px, z - pz) - R0;
 }
+/** The station's plaza under the viaduct (stairs come down here). */
+const STATION_PLAZA = {
+  x0: METRO.x - 34,
+  x1: METRO.x + 34,
+  z0: METRO.stationZ - METRO.stationLength / 2 - 18,
+  z1: METRO.stationZ + METRO.stationLength / 2 + 18,
+};
+/** Begum Rokeya Sarani under the viaduct, the Mirpur 10 roundabout and the station plaza stay clear of trees. */
+function onMetroGround(x: number, z: number, m: number): boolean {
+  if (Math.abs(x - METRO.x) < METRO.roadW / 2 + m) return true;
+  if (Math.hypot(x - ROUNDABOUT.x, z - ROUNDABOUT.z) < ROUNDABOUT.r + 10 + m) return true;
+  return (
+    x > STATION_PLAZA.x0 - m &&
+    x < STATION_PLAZA.x1 + m &&
+    z > STATION_PLAZA.z0 - m &&
+    z < STATION_PLAZA.z1 + m
+  );
+}
 
 export interface Tree {
   x: number;
@@ -143,6 +162,7 @@ export function placeTrees(): Tree[] {
     P: PlanPoint = { x: 0, z: 0, nx: 0, nz: 0 };
   const add = (x: number, z: number, kind: 'c' | 'd', scale?: number) => {
     if (Math.abs(x) > GROUND / 2 - 10 || Math.abs(z) > GROUND / 2 - 10) return;
+    if (onMetroGround(x, z, 5)) return;
     const conifer = kind === 'c';
     const h = conifer ? 13 + r() * 8 : (9 + r() * 6) * (scale || 1),
       rad = conifer ? 3 + r() * 1.5 : (3.6 + r() * 2.4) * (scale || 1);
@@ -265,6 +285,51 @@ export function drawGround(x: Ctx2D, flip: boolean): void {
   x.fillStyle = '#45484d';
   x.fillRect(gx(-7), gz(255), 14 * GK, h);
   x.fillRect(gx(270), gz(-7), w, 14 * GK);
+  // Begum Rokeya Sarani under MRT Line 6: two carriageways either side of the piers' median, the station
+  // plaza, and the Mirpur 10 roundabout where the east road meets it.
+  {
+    const half = METRO.roadW / 2;
+    x.fillStyle = '#d9d6cc';
+    x.fillRect(gx(METRO.x - half - 1.5), 0, (METRO.roadW + 3) * GK, h);
+    x.fillStyle = '#45484d';
+    x.fillRect(gx(METRO.x - half), 0, METRO.roadW * GK, h);
+    x.fillStyle = '#b9b3a6';
+    x.fillRect(gx(METRO.x - 3.5), 0, 7 * GK, h);
+    x.strokeStyle = 'rgba(245,245,238,.8)';
+    x.lineWidth = 0.3 * GK;
+    x.setLineDash([3 * GK, 6 * GK]);
+    for (const s of [-1, 1]) {
+      x.beginPath();
+      x.moveTo(gx(METRO.x + s * (3.5 + 5.5)), 0);
+      x.lineTo(gx(METRO.x + s * (3.5 + 5.5)), h);
+      x.stroke();
+    }
+    x.setLineDash([]);
+    const p = STATION_PLAZA;
+    x.fillStyle = '#d3cdc0';
+    x.fillRect(gx(p.x0), gz(p.z0), (p.x1 - p.x0) * GK, (p.z1 - p.z0) * GK);
+    x.fillStyle = '#45484d';
+    x.fillRect(gx(METRO.x - half), gz(p.z0), METRO.roadW * GK, (p.z1 - p.z0) * GK);
+    x.fillStyle = '#b9b3a6';
+    x.fillRect(gx(METRO.x - 3.5), gz(p.z0), 7 * GK, (p.z1 - p.z0) * GK);
+    const R = ROUNDABOUT;
+    x.beginPath();
+    x.arc(gx(R.x), gz(R.z), (R.r + 1.5) * GK, 0, TAU);
+    x.fillStyle = '#d9d6cc';
+    x.fill();
+    x.beginPath();
+    x.arc(gx(R.x), gz(R.z), R.r * GK, 0, TAU);
+    x.fillStyle = '#45484d';
+    x.fill();
+    x.beginPath();
+    x.arc(gx(R.x), gz(R.z), (R.r - 11) * GK, 0, TAU);
+    x.fillStyle = '#d9d6cc';
+    x.fill();
+    x.beginPath();
+    x.arc(gx(R.x), gz(R.z), (R.r - 12) * GK, 0, TAU);
+    x.fillStyle = '#5f9440';
+    x.fill();
+  }
   // ring road
   rrPath(x, RING_D);
   x.strokeStyle = '#d9d6cc';

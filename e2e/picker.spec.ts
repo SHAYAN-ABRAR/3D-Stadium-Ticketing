@@ -14,12 +14,16 @@ test('mouse: stand, block and seat picked in 3D, then the VIP upgrade and a hold
   await page.mouse.move(north.x, north.y);
   await page.mouse.click(north.x, north.y);
   await atLevel(page, 'stand');
+  // The framing eases for a few frames after a flight (seconds with software rendering): read screen
+  // positions once the view has settled, as the purchase spec does.
+  await idle(page);
 
   const block = await page.evaluate(() => window.__stadium!.blockScreen(232));
   await page.mouse.move(block!.x, block!.y);
   await expect(page.getByRole('tooltip')).toContainText('Block 232');
   await page.mouse.click(block!.x, block!.y);
   await atLevel(page, 'block');
+  await idle(page);
 
   const seat = await page.evaluate(() => window.__stadium!.seatIndex(232, 10, 8));
   const s = await page.evaluate((i) => window.__stadium!.seatScreen(i), seat);

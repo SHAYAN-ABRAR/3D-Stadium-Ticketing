@@ -38,21 +38,28 @@ StadiumEngine.ts   Public class: mount/dispose, data setters, navigation (goStan
                    goBox, goVip), snapshots, quality, lighting, crowd and wave, events. Owns the frame
                    scheduler (active, ambient up to 30 fps, asleep) and input.
 build-client.ts    Runs build.worker.ts (OffscreenCanvas) or falls back to the main thread; caches results.
-build-data.ts      CPU-only build: seat matrices/colours, trees, cars, painted ground, shadow mask.
+build-data.ts      CPU-only build: seat matrices/colours, trees, cars, the city, painted ground, shadow mask.
 camera.ts          CameraRig: orbit and look views, Bezier flights, lens fitting, UI-aware view offset.
 picking.ts         Stand ray-march, GPU id picking (1x1 target), VIP chair raycast.
 painter.ts         Seat colours and glow (pick orange, sold grey, dimmed) with partial uploads.
 near.ts            Detailed seats near the camera; hides the seat you sit in.
 crowd.ts           Match-day crowd: billboarded impostors from a generated atlas, near 3D people (High),
-                   idle motion, the Mexican wave, fades and scale-ins.
+                   idle motion, the Mexican wave, goal cheers, fades and scale-ins.
+match-sim.ts       The match on the pitch as plain TypeScript (tested): 4-4-2 shapes, passing, pressing,
+                   shots and saves, set pieces, goals, the walk back to kick-off, referees.
+match.ts           Draws the match: instanced players with a run cycle in the shader, blob shadows, ball.
 post.ts            Composer: render pass, N8AO (High), bloom (Medium+), ACES tone mapping, SMAA, vignette.
-lighting.ts        Golden hour / day / night presets with 1.5 s blends (sky, sun, fog, night emissives).
+lighting.ts        Golden hour / day / blue hour / night presets with 1.5 s blends (sky and its colour
+                   grade, sun, fog, night emissives in the stadium, the city and the metro).
 snapshots.ts       "Your view" pictures: scissored render + drawImage in the same task, JPEG export; on High
                    2x size, depth of field and the crowd.
 quality.ts         Tier table, automatic tiering, localStorage memory, ?quality= override.
-world/             Scene builders: park (worker-safe), seat data, geometry, textures, boards (LED ribbons,
-                   screens), details (procedural pitch, nets, flags, cables, glass, nosings), shading
-                   (cloud shadows, tree sway, flag wave patches), sky, interior, scene.
+world/             Scene builders: park and city-data (worker-safe: the neighbourhood's blocks, roads,
+                   rooftops, mosques, trees and street lights), city (its meshes; windows drawn in the
+                   shader), metro (MRT Line 6 viaduct, Mirpur 10 station, moving trains), seat data,
+                   geometry, textures, boards (LED ribbons, screens), details (procedural pitch, nets,
+                   flags, cables, glass, nosings), shading (cloud shadows, tree sway, flag wave patches),
+                   sky, interior, scene.
 test-api.ts        window.__stadium for E2E tests (NEXT_PUBLIC_E2E=1 or development only).
 ```
 

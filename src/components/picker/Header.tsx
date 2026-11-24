@@ -282,7 +282,7 @@ function ViewSettings() {
                 }}
                 className="mt-1.5 grid gap-1"
               >
-                {(['golden', 'day', 'night'] as const).map((p) => (
+                {(['golden', 'day', 'dusk', 'night'] as const).map((p) => (
                   <Choice key={p} value={p} label={t(`lightings.${p}`)} />
                 ))}
               </RadioGroup.Root>

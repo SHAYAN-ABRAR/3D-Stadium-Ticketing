@@ -7,7 +7,8 @@
  *   they receive shadows and fog. Alpha is sharpened with distance so mipmaps don't thin the crowd out.
  * - Near (High, seat and box views): low-poly 3D people (174 triangles) within 25 m of the camera, in the
  *   same colours; their impostors are hidden.
- * - Idle animation (sway, an occasional raised arm) with ambient animation; a Mexican wave travels along s.
+ * - Idle animation (sway, an occasional raised arm) with ambient animation; a Mexican wave travels along s;
+ *   when the match on the pitch has a goal, the scoring side's fans jump with their arms up.
  * - Fades in and out with a 400 ms dissolve; a seat that sells scales its spectator in.
  */
 import * as THREE from 'three';
@@ -45,6 +46,8 @@ const WAVE_SPEED = 30;
 const WAVE_LAPS = 1;
 const NEAR_RADIUS = 25;
 const NEAR_MAX = 1500;
+/** How long the fans celebrate a goal. */
+const CHEER_S = 6;
 
 interface Variant {
   group: 'home' | 'away' | 'neutral';
@@ -268,14 +271,22 @@ uniform float uIdle;
 uniform float uWaveFront;
 uniform float uWaveAmp;
 uniform float uPerimeter;
-uniform float uFade;`;
+uniform float uFade;
+uniform float uCheer;
+uniform float uCheerTeam;`;
 
-/** Shared animation terms: the wave crest's distance along s, raised arms, and the scale-in. */
+/**
+ * Shared animation terms: the wave crest's distance along s, a goal cheer (the scoring side's fans jump
+ * with their arms up, neutral fans less), raised arms, and the scale-in. Needs cS, cPhase, cBorn and cGroup
+ * (0 home, 1 away, 2 neutral).
+ */
 const ANIMATION = /* glsl */ `
 float cWd = mod(uWaveFront - cS + 0.5 * uPerimeter, uPerimeter) - 0.5 * uPerimeter;
 float cWave = uWaveAmp * exp(-cWd * cWd / 60.0);
 float cIdleUp = uIdle * step(0.972, fract(uTime * 0.05 + cPhase * 7.0));
-float cRaise = max(smoothstep(0.15, 0.55, cWave), cIdleUp);
+float cCheer = uCheer * (cGroup == uCheerTeam ? 1.0 : cGroup > 1.5 ? 0.45 : 0.0);
+float cJump = cCheer * abs(sin(uClock * 7.5 + cPhase * 29.0)) * 0.3;
+float cRaise = max(max(smoothstep(0.15, 0.55, cWave), cIdleUp), step(0.3, cCheer) * step(0.3, fract(cPhase * 5.3 + 0.2)));
 float cAge = cBorn < 0.0 ? 1.0 : clamp((uClock - cBorn) / ${SCALE_IN_S.toFixed(2)}, 0.0, 1.0);
 float cGrow = 1.0 - (1.0 - cAge) * (1.0 - cAge) * (1.0 - cAge);
 float cLean = uIdle * sin(uTime * 1.3 + cPhase * 40.0) * 0.022;`;
@@ -287,6 +298,8 @@ interface CrowdUniforms {
   uWaveAmp: { value: number };
   uPerimeter: { value: number };
   uFade: { value: number };
+  uCheer: { value: number };
+  uCheerTeam: { value: number };
 }
 
 function farMaterial(atlas: THREE.Texture, u: CrowdUniforms, amb: AmbientUniforms) {
@@ -307,6 +320,7 @@ varying float vCrowdWave;${CROWD_UNIFORMS}`,
         '#include <uv_vertex>',
         /* glsl */ `
 float cS = aSeat.w, cPhase = aInfo.y, cBorn = aInfo.z;
+float cGroup = aInfo.x < 6.5 ? 0.0 : aInfo.x < 10.5 ? 1.0 : 2.0;
 ${ANIMATION}
 vCrowdWave = cWave;
 vec3 cFace = vec3(-aFace.x, 0.0, -aFace.y);
@@ -334,7 +348,7 @@ vMapUv = (vec2(mod(cCell, ${COLS.toFixed(1)}), ${(ROWS - 1).toFixed(1)} - floor(
         /* glsl */ `
 vec3 transformed = aSeat.xyz + cFace * -0.04
   + cRight * ((position.x + cLean * position.y) * ${SPRITE_W.toFixed(2)} * cScale)
-  + vec3(0.0, ${SPRITE_BASE.toFixed(2)} + position.y * ${SPRITE_H.toFixed(2)} * (1.0 + 0.45 * cReach * cWave) * cScale + cWave * cReach * cScale, 0.0);`,
+  + vec3(0.0, ${SPRITE_BASE.toFixed(2)} + position.y * ${SPRITE_H.toFixed(2)} * (1.0 + 0.45 * cReach * cWave) * cScale + (cWave + cJump) * cReach * cScale, 0.0);`,
       );
     sh.fragmentShader = sh.fragmentShader
       .replace('#include <common>', '#include <common>\nvarying float vCrowdWave;')
@@ -422,12 +436,13 @@ attribute vec3 aSkin;
 attribute vec3 aHair;
 attribute vec3 aPants;
 attribute vec3 aMeta;
+attribute float aGroup;
 varying vec3 vPColor;${CROWD_UNIFORMS}`,
       )
       .replace(
         '#include <uv_vertex>',
         /* glsl */ `
-float cS = aMeta.x, cPhase = aMeta.y, cBorn = aMeta.z;
+float cS = aMeta.x, cPhase = aMeta.y, cBorn = aMeta.z, cGroup = aGroup;
 ${ANIMATION}
 float pVis = ${VISIBLE_GLSL('distance(cameraPosition, (modelMatrix * instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz)')};
 float pArm = (aPart == 4.0 || aPart == 6.0) ? 1.0 : (aPart == 5.0 || aPart == 7.0) ? -1.0 : 0.0;
@@ -450,7 +465,7 @@ if (pArm != 0.0) {
   transformed = piv + vec3(pC * r.x - pSn * r.y, pSn * r.x + pC * r.y, r.z);
 }
 transformed.x += cLean * 1.4 * max(0.0, transformed.y - 0.5);
-transformed.y += cWave * 0.45;
+transformed.y += cWave * 0.45 + cJump;
 transformed = mix(vec3(0.0, 0.45, 0.0), transformed, cGrow * pVis);`,
       );
     sh.fragmentShader = sh.fragmentShader
@@ -478,6 +493,7 @@ export class Crowd {
   private fade = 0;
   private target = 0;
   private wave: { start: number; from: number; duration: number } | null = null;
+  private cheering: { start: number; team: 0 | 1 } | null = null;
   private clock = 0;
   private lastBorn = -Infinity;
   private snapshotState: { fade: number; swapped: boolean } | null = null;
@@ -501,6 +517,8 @@ export class Crowd {
       uWaveAmp: { value: 0 },
       uPerimeter: { value: P0 },
       uFade: { value: 0 },
+      uCheer: { value: 0 },
+      uCheerTeam: { value: 0 },
     };
 
     const quad = new THREE.PlaneGeometry(1, 1).translate(0, 0.5, 0);
@@ -544,6 +562,9 @@ export class Crowd {
       a.setUsage(THREE.DynamicDrawUsage);
       pg.setAttribute(name, a);
     }
+    const group = new THREE.InstancedBufferAttribute(new Float32Array(NEAR_MAX), 1);
+    group.setUsage(THREE.DynamicDrawUsage);
+    pg.setAttribute('aGroup', group);
     this.near = new THREE.InstancedMesh(pg, nearMaterial(this.u, amb), NEAR_MAX);
     this.near.count = 0;
     this.near.frustumCulled = false;
@@ -644,6 +665,7 @@ export class Crowd {
       hair = g.getAttribute('aHair').array as Float32Array,
       pants = g.getAttribute('aPants').array as Float32Array,
       meta = g.getAttribute('aMeta').array as Float32Array,
+      group = g.getAttribute('aGroup').array as Float32Array,
       m = new THREE.Matrix4(),
       c = new THREE.Color(),
       info = this.info.array as Float32Array;
@@ -658,10 +680,11 @@ export class Crowd {
       c.set(v.cap ? v.team : v.hair).toArray(hair, k * 3);
       c.set(v.pants).toArray(pants, k * 3);
       meta.set([this.layout.planS[i], info[i * 3 + 1], info[i * 3 + 2]], k * 3);
+      group[k] = v.group === 'home' ? 0 : v.group === 'away' ? 1 : 2;
     });
     this.near.count = this.nearIdx.length;
     this.near.instanceMatrix.needsUpdate = true;
-    for (const name of ['aShirt', 'aSkin', 'aHair', 'aPants', 'aMeta'])
+    for (const name of ['aShirt', 'aSkin', 'aHair', 'aPants', 'aMeta', 'aGroup'])
       g.getAttribute(name).needsUpdate = true;
     this.show.needsUpdate = true;
     this.applyFade();
@@ -676,6 +699,12 @@ export class Crowd {
   stopWave() {
     this.wave = null;
     this.u.uWaveAmp.value = 0;
+  }
+
+  /** A goal: the scoring side's fans (team 0 home, 1 away) jump with their arms up for a few seconds. */
+  cheer(team: 0 | 1) {
+    this.cheering = { start: this.clock, team };
+    this.u.uCheerTeam.value = team;
   }
 
   /**
@@ -699,6 +728,17 @@ export class Crowd {
       else {
         this.u.uWaveFront.value = (((this.wave.from + t * WAVE_SPEED) % P0) + P0) % P0;
         this.u.uWaveAmp.value = Math.min(1, t / 1, (dur - t) / 1.5);
+        busy = true;
+      }
+    }
+    if (this.cheering) {
+      // Up in 0.4 s, on for a while, down over 1.5 s.
+      const t = this.clock - this.cheering.start;
+      if (t >= CHEER_S) {
+        this.cheering = null;
+        this.u.uCheer.value = 0;
+      } else {
+        this.u.uCheer.value = Math.min(1, t / 0.4, (CHEER_S - t) / 1.5);
         busy = true;
       }
     }

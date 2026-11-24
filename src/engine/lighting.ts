@@ -2,6 +2,7 @@
  * Lighting presets (PROMPT.md 6.6, item 3) with a smooth 1.5 s transition:
  * - golden hour (default): sun in the south-west about 22 degrees high, warm light;
  * - day: sun high, neutral light;
+ * - blue hour: the sun just set, a deep blue sky, the lights already on;
  * - night: the sun below the horizon, moonlight and a dim hemisphere; floodlight strips under the roof's inner
  *   edge, spot lights on the pitch (no shadows), LED ribbons, screens and facade windows bright enough to
  *   bloom, facade fins washed in the brand colour, a light strip along the roof's edge, stars and a moon.
@@ -61,6 +62,8 @@ export const LOOKS: Record<LightingPreset, Look> = {
       mieG: 0.88,
       gain: 0.55,
       clouds: 0.35,
+      horizonTint: [1, 1, 1],
+      zenithTint: [1, 1, 1],
     },
     lightElevation: 22,
     lightAzimuth: GOLDEN_AZ,
@@ -90,6 +93,8 @@ export const LOOKS: Record<LightingPreset, Look> = {
       mieG: 0.8,
       gain: 0.34,
       clouds: 0.3,
+      horizonTint: [1, 1, 1],
+      zenithTint: [1, 1, 1],
     },
     lightElevation: 58,
     lightAzimuth: GOLDEN_AZ,
@@ -109,6 +114,42 @@ export const LOOKS: Record<LightingPreset, Look> = {
     cloudShadows: 0.38,
     night: 0,
   },
+  // Blue hour: the sun just below the horizon, a deep blue sky with a warm glow where it set, the city's
+  // windows and the floodlights already on.
+  dusk: {
+    // The sky model darkens steeply as the sun sinks (and goes black about 2.3 degrees down): just below
+    // the horizon, with a high gain (which also lifts its faint blue night floor), it gives the deep blue of
+    // the hour after sunset.
+    sky: {
+      elevation: -1.2,
+      azimuth: GOLDEN_AZ,
+      turbidity: 3.2,
+      rayleigh: 3.4,
+      mie: 0.005,
+      mieG: 0.84,
+      gain: 30,
+      clouds: 0.22,
+      // Warm where the sun went down, deep blue overhead. (The model's twilight is olive: it has no ozone
+      // absorption, which is what turns the real twilight sky blue.)
+      horizonTint: [1.15, 0.8, 0.7],
+      zenithTint: [0.2, 0.4, 1.7],
+    },
+    lightElevation: 34,
+    lightAzimuth: GOLDEN_AZ + 20,
+    lightColor: c('#87a1e8'),
+    lightIntensity: 0.8,
+    hemiSky: c('#7088d2'),
+    hemiGround: c('#1f2536'),
+    hemiIntensity: 1.15,
+    fog: c('#34497a'),
+    fogNear: 650,
+    fogFar: 4400,
+    exposure: 1.06,
+    envIntensity: 0.65,
+    paintedShadows: 0,
+    cloudShadows: 0,
+    night: 0.82,
+  },
   night: {
     sky: {
       elevation: -8,
@@ -119,6 +160,8 @@ export const LOOKS: Record<LightingPreset, Look> = {
       mieG: 0.75,
       gain: 1.4,
       clouds: 0.2,
+      horizonTint: [1, 1, 1],
+      zenithTint: [1, 1, 1],
     },
     lightElevation: 42,
     lightAzimuth: 250,
@@ -139,6 +182,8 @@ export const LOOKS: Record<LightingPreset, Look> = {
 };
 
 const lerp = THREE.MathUtils.lerp;
+const lerp3 = (a: readonly [number, number, number], b: readonly [number, number, number], t: number) =>
+  [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)] as const;
 
 function lerpAngle(a: number, b: number, t: number) {
   const d = ((((b - a) % 360) + 540) % 360) - 180;
@@ -156,6 +201,8 @@ export function mixLook(a: Look, b: Look, t: number): Look {
       mieG: lerp(a.sky.mieG, b.sky.mieG, t),
       gain: lerp(a.sky.gain, b.sky.gain, t),
       clouds: lerp(a.sky.clouds, b.sky.clouds, t),
+      horizonTint: lerp3(a.sky.horizonTint, b.sky.horizonTint, t),
+      zenithTint: lerp3(a.sky.zenithTint, b.sky.zenithTint, t),
     },
     lightElevation: lerp(a.lightElevation, b.lightElevation, t),
     lightAzimuth: lerpAngle(a.lightAzimuth, b.lightAzimuth, t),
@@ -313,6 +360,13 @@ export class LightingRig {
     L.stars.visible = L.moon.visible = n > 0.01;
     (L.stars.material as THREE.PointsMaterial).opacity = n;
     (L.moon.material as THREE.MeshBasicMaterial).opacity = n;
+    // The city: lit windows and shops, street lights and minaret lights; the metro's windows and station.
+    world.city.night.value = n;
+    for (const m of world.city.lamps) {
+      m.opacity = n;
+      m.visible = n > 0.01;
+    }
+    world.metro.setNight(n);
   }
 
   dispose() {

@@ -32,15 +32,29 @@ export async function frames(page: Page): Promise<number> {
   return page.evaluate(() => window.__stadium?.frames ?? 0);
 }
 
-/** Waits until the engine renders no frame for `quietMs` (it sleeps when nothing changes). */
-export async function idle(page: Page, quietMs = 1500) {
-  let last = await frames(page);
-  for (let i = 0; i < 120; i++) {
-    await page.waitForTimeout(quietMs);
-    const now = await frames(page);
-    if (now === last) return;
-    last = now;
-  }
+/**
+ * Waits until the engine sleeps: nothing scheduled and no flight, on three polls in a row. (Counting
+ * frames over a quiet spell misreads a single frame that takes longer than the spell, which happens with
+ * software rendering.)
+ */
+export async function idle(page: Page) {
+  await page.evaluate(() => {
+    (window as unknown as { __quietPolls?: number }).__quietPolls = 0;
+  });
+  await page.waitForFunction(
+    () => {
+      const w = window as unknown as { __quietPolls?: number };
+      const s = window.__stadium;
+      if (!s?.ready || s.busy) {
+        w.__quietPolls = 0;
+        return false;
+      }
+      w.__quietPolls = (w.__quietPolls ?? 0) + 1;
+      return w.__quietPolls >= 3;
+    },
+    null,
+    { timeout: 600_000, polling: 300 },
+  );
 }
 
 /**

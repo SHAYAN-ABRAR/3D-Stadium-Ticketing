@@ -22,6 +22,8 @@ import type { Sky } from 'three/addons/objects/Sky.js';
 import { LOOKS } from '../lighting';
 import { Boards } from './boards';
 import { aisleNosings, balustrades, buildFlags, goalNets, pitchMaterial, roofCables } from './details';
+import { buildCity, type City } from './city';
+import { buildMetro, type Metro } from './metro';
 import { addCloudShadows, addTreeSway, createAmbientUniforms, type AmbientUniforms } from './shading';
 import { dirFrom, makeMoon, makeSky, makeStars, setSky, skyEnvironment } from './sky';
 import {
@@ -41,6 +43,11 @@ export interface WorldOptions {
   shadowMapSize: number;
   /** Share of trees to draw (0.6 on the Low tier). */
   treeDensity: number;
+  /** Share of the city's far buildings to draw, whether roofs get stair rooms and water tanks, and the
+   * simpler lighting model for it (Low). */
+  cityDensity: number;
+  rooftops: boolean;
+  cheapCity: boolean;
 }
 
 export interface World {
@@ -74,6 +81,9 @@ export interface World {
   };
   /** Animated LED ribbons, boards and screens. */
   boards: Boards;
+  /** The neighbourhood around the park, and MRT Line 6 with its trains. */
+  city: City;
+  metro: Metro;
   /** Uniforms of the ambient shader patches (time, cloud shadows, wind). */
   ambient: AmbientUniforms;
   seats: THREE.InstancedMesh;
@@ -579,7 +589,8 @@ export function buildWorld(renderer: THREE.WebGLRenderer, data: BuildData, opts:
         );
     };
     mat.customProgramCacheKey = () => 'ground-shadow-mask';
-    const outerMat = new THREE.MeshStandardMaterial({ color: '#557c35', roughness: 1 });
+    // Beyond the park: the city's dusty ground (its roads and playgrounds lie on top: city.ts).
+    const outerMat = new THREE.MeshStandardMaterial({ color: '#8b877c', roughness: 1 });
     const lake = lakeMesh();
     clouds(mat, outerMat, lake.material as THREE.Material);
     const ground = new THREE.Mesh(g, mat);
@@ -712,6 +723,16 @@ export function buildWorld(renderer: THREE.WebGLRenderer, data: BuildData, opts:
     scene.add(bm, cm);
   }
 
+  /* the neighbourhood and MRT Line 6 */
+  const city = buildCity(
+    data.city,
+    { density: opts.cityDensity, rooftops: opts.rooftops, cheap: opts.cheapCity },
+    ambient,
+  );
+  const metro = buildMetro(ambient);
+  scene.add(city.group, metro.group);
+  extra.push(city, metro);
+
   extra.push(wheel.texture);
   return {
     layout,
@@ -737,6 +758,8 @@ export function buildWorld(renderer: THREE.WebGLRenderer, data: BuildData, opts:
       membraneUnder,
     },
     boards,
+    city,
+    metro,
     ambient,
     seats,
     seatGlow: glow,

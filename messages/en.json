@@ -170,10 +170,11 @@
       "lightings": {
         "golden": "Golden hour",
         "day": "Day",
+        "dusk": "Blue hour",
         "night": "Night match"
       },
-      "crowd": "Match-day crowd",
-      "crowdNote": "The crowd shows when you sit in a seat or a skybox.",
+      "crowd": "Match-day crowd and match",
+      "crowdNote": "The crowd fills the stands and a match is played when you sit in a seat or a skybox.",
       "wave": "Start a Mexican wave"
     },
     "list": {

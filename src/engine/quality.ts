@@ -19,6 +19,11 @@ export interface TierSettings {
   crowd: 'views' | 'impostors' | 'full';
   /** Snapshot supersampling and depth of field (High). */
   snapshotScale: number;
+  /** Share of the city's far buildings, and stair rooms and water tanks on its roofs. */
+  cityDensity: number;
+  rooftops: boolean;
+  /** The city lit with the simpler Lambert model (no environment map), for weak and software renderers. */
+  cheapCity: boolean;
 }
 
 export const TIERS: Record<QualityTier, TierSettings> = {
@@ -33,6 +38,9 @@ export const TIERS: Record<QualityTier, TierSettings> = {
     ao: false,
     crowd: 'views',
     snapshotScale: 1,
+    cityDensity: 0.3,
+    rooftops: false,
+    cheapCity: true,
   },
   medium: {
     dprCap: 1.5,
@@ -45,6 +53,9 @@ export const TIERS: Record<QualityTier, TierSettings> = {
     ao: false,
     crowd: 'impostors',
     snapshotScale: 1,
+    cityDensity: 1,
+    rooftops: true,
+    cheapCity: false,
   },
   high: {
     dprCap: 2,
@@ -57,6 +68,9 @@ export const TIERS: Record<QualityTier, TierSettings> = {
     ao: true,
     crowd: 'full',
     snapshotScale: 2,
+    cityDensity: 1,
+    rooftops: true,
+    cheapCity: false,
   },
 };
 

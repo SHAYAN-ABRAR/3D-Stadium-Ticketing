@@ -17,8 +17,9 @@ import {
 import { brand } from '@/config/brand';
 import { nearestBox } from '@/lib/picker/selection';
 import { loadBuildData } from './build-client';
-import { CameraRig, lookDir, poseOf, type FlightOptions, type View } from './camera';
+import { aim, CameraRig, lookDir, poseOf, type FlightOptions, type View } from './camera';
 import { Crowd } from './crowd';
+import { Match } from './match';
 import { Emitter } from './emitter';
 import { NearSeats } from './near';
 import { SeatPainter, type PaintState } from './painter';
@@ -83,6 +84,8 @@ export class StadiumEngine {
   private post: PostPipeline | null = null;
   private lightingRig: LightingRig | null = null;
   private crowd: Crowd | null = null;
+  /** Players, referee and ball, on the pitch whenever the match-day crowd is in the stands. */
+  private match: Match | null = null;
   private interior: BoxInterior | null = null;
   private mountPromise: Promise<void> | null = null;
   private disposed = false;
@@ -120,6 +123,8 @@ export class StadiumEngine {
 
   /* frame scheduling */
   private raf = 0;
+  /** True while a frame runs (a frame requested from inside it continues the chain). */
+  private inFrame = false;
   private dirty = true;
   private last = performance.now();
   private lastRender = 0;
@@ -261,6 +266,9 @@ export class StadiumEngine {
       font: this.opts.displayFont,
       shadowMapSize: tier.shadowMapSize,
       treeDensity: tier.treeDensity,
+      cityDensity: tier.cityDensity,
+      rooftops: tier.rooftops,
+      cheapCity: tier.cheapCity,
     });
     this.world = world;
     this.painter = new SeatPainter(world, this.paintState);
@@ -277,6 +285,19 @@ export class StadiumEngine {
     this.crowd.scaleIn = !(this.opts.freeze || this.opts.reducedMotion);
     this.crowd.setStatuses(this.statuses);
     world.scene.add(this.crowd.far, this.crowd.near);
+    this.match = new Match(this.opts.text, world.ambient);
+    this.match.instant = !!(this.opts.freeze || this.opts.reducedMotion);
+    // A goal: the scoring side's fans jump, and the screens and ribbons celebrate.
+    this.match.onGoal = (team) => {
+      const t = this.opts.text;
+      this.crowd?.cheer(team);
+      world.boards.goal(
+        team === 0 ? t.home : t.away,
+        (team === 0 ? t.homeColor : t.awayColor) || '#1f46b8',
+        Date.now(),
+      );
+    };
+    world.scene.add(this.match.group);
     this.resize();
 
     this.events.emit('progress', { value: 0.85, step: 'lights' });
@@ -315,6 +336,8 @@ export class StadiumEngine {
     this.snaps?.dispose();
     this.crowd?.dispose();
     this.crowd = null;
+    this.match?.dispose();
+    this.match = null;
     this.post?.dispose();
     this.post = null;
     this.lightingRig?.dispose();
@@ -341,6 +364,14 @@ export class StadiumEngine {
 
   get flying() {
     return !!this.rig.flight;
+  }
+
+  /**
+   * A frame is scheduled or a flight runs: the engine will draw again without new input. Read between
+   * frames (JavaScript is single-threaded), so it is exact however long a frame takes (tests wait on it).
+   */
+  get busy() {
+    return this.raf !== 0 || !!this.rig.flight;
   }
 
   get navState(): Readonly<NavState> {
@@ -704,6 +735,40 @@ export class StadiumEngine {
     return !!this.crowd?.waving;
   }
 
+  /** The players are (fading) on the pitch. */
+  get matchVisible() {
+    return !!this.match?.visible;
+  }
+
+  /**
+   * Test API (visual checks): plays the match on to its next goal at once; the celebration then plays live.
+   * Returns the scoring team, or -1.
+   */
+  forwardToGoal(): number {
+    const sim = this.match?.sim;
+    if (!sim) return -1;
+    const before = sim.score[0] + sim.score[1];
+    for (let i = 0; i < 1800 * 30 && sim.score[0] + sim.score[1] === before; i++) sim.step(1 / 30);
+    this.invalidate();
+    return sim.celebrating?.team ?? -1;
+  }
+
+  /** Test API (visual checks): looks from `eye` at `target`, whatever the level. */
+  peek(eye: [number, number, number], target: [number, number, number], fov = 40) {
+    const e = new THREE.Vector3(...eye);
+    const { yaw, pitch } = aim(e, new THREE.Vector3(...target));
+    this.rig.jumpTo({
+      type: 'look',
+      eye: e,
+      yaw,
+      pitch,
+      fov,
+      near: 0.5,
+      lim: { y: [-Math.PI, Math.PI], p: [-1.4, 1.4] },
+    });
+    this.invalidate();
+  }
+
   /* ================= screen helpers ================= */
 
   /** Screen position (CSS px, relative to the container) of a world point. */
@@ -858,10 +923,10 @@ export class StadiumEngine {
     // The home hero shows the crowd too, except on Low (impostors only in seat and box views there).
     const hero = this.opts.hero && TIERS[this.tier].crowd !== 'views';
     // Tests (?freeze=1) and reduced motion: no fade.
-    this.crowd?.setShown(
-      this.crowdWanted && (hero || lv === 'seat' || lv === 'box' || lv === 'vip'),
-      this.opts.freeze || this.opts.reducedMotion,
-    );
+    const shown = this.crowdWanted && (hero || lv === 'seat' || lv === 'box' || lv === 'vip');
+    this.crowd?.setShown(shown, this.opts.freeze || this.opts.reducedMotion);
+    // The match is on whenever the crowd is in the stands.
+    this.match?.setShown(shown);
   }
 
   private async fly(view: View, fo: FlightOptions, instant?: boolean): Promise<boolean> {
@@ -1300,6 +1365,9 @@ export class StadiumEngine {
     if (this.raf || this.disposed || this.contextLost || !this.world) return;
     if (typeof document !== 'undefined' && document.hidden) return;
     if (!this.onScreen) return;
+    // Waking from sleep: the first frame is timed from now, so easing starts gently. A frame chained from
+    // the previous one keeps the real interval.
+    if (!this.inFrame) this.last = performance.now();
     this.raf = requestAnimationFrame(this.frame);
   }
 
@@ -1336,11 +1404,21 @@ export class StadiumEngine {
 
   private frame = (now: number) => {
     this.raf = 0;
+    this.inFrame = true;
+    try {
+      this.runFrame(now);
+    } finally {
+      this.inFrame = false;
+    }
+  };
+
+  private runFrame(now: number) {
     const r = this.renderer,
       world = this.world;
     if (this.disposed || this.contextLost || !r || !world) return;
-    const dt = Math.min(0.1, (now - this.last) / 1000);
-    const frameMs = now - this.last;
+    const frameMs = Math.max(0, now - this.last);
+    // Animations step at most 0.1 s per frame (no jumps after a stall).
+    const dt = Math.min(0.1, frameMs / 1000);
     this.last = now;
     let active = this.dirty;
     let ambient = false;
@@ -1365,9 +1443,13 @@ export class StadiumEngine {
       }
     }
     if (world.boards.update(Date.now(), dt, mode) && mode === 'static') active = true;
+    world.metro.update(dt, animate);
     if (this.crowd?.update(dt, animate)) active = true;
+    if (this.match?.update(dt, animate)) active = true;
     if (this.lightingRig?.update(now)) active = true;
-    if (this.rig.stepOffset(dt)) active = true;
+    // The framing eases by the real time between frames (up to 1 s), so on a slow renderer it settles in a
+    // frame or two instead of a dozen.
+    if (this.rig.stepOffset(Math.min(1, frameMs / 1000))) active = true;
     if (this.rig.flight) {
       this.rig.stepFlight(now);
       active = true;
@@ -1413,7 +1495,7 @@ export class StadiumEngine {
       if (this.opts.debug) this.frameTimes.push(frameMs);
     }
     if (active || ambient || this.rig.flight) this.requestFrame();
-  };
+  }
 
   private applyPixelRatio() {
     const r = this.renderer;

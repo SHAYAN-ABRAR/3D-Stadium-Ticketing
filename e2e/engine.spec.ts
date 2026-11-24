@@ -57,20 +57,23 @@ test('engine renders every level, sleeps when idle and logs no errors', async ({
   expect(errors).toEqual([]);
 });
 
-// Phase 6: lighting presets (one screenshot each), the match-day crowd in seat views and the wave.
+// Phase 6: lighting presets (one screenshot each), the match-day crowd and the match in seat views, the wave.
 test('lighting presets, crowd and wave', async ({ page }) => {
   const errors = collectErrors(page);
   await page.goto(`/events/cup-final?${PICKER_QUERY}&block=232`);
   await atLevel(page, 'block');
-  // The crowd stays hidden at block level, where the availability colours must stay clear.
+  // The crowd and the match stay hidden at block level, where the availability colours must stay clear.
   expect(await page.evaluate(() => window.__stadium!.crowdVisible)).toBe(false);
+  expect(await page.evaluate(() => window.__stadium!.matchVisible)).toBe(false);
 
   const seat = await page.evaluate(() => window.__stadium!.seatIndex(232, 10, 8));
   await page.evaluate((i) => window.__stadium!.goSeat(i), seat);
   await atLevel(page, 'seat');
   expect(await page.evaluate(() => window.__stadium!.crowdVisible)).toBe(true);
+  // From a seat, the match is on: players, the referees and the ball on the pitch.
+  expect(await page.evaluate(() => window.__stadium!.matchVisible)).toBe(true);
 
-  for (const preset of ['golden', 'day', 'night'] as const) {
+  for (const preset of ['golden', 'day', 'dusk', 'night'] as const) {
     await page.evaluate((p) => window.__stadium!.setLighting(p), preset);
     expect(await page.evaluate(() => window.__stadium!.lighting)).toBe(preset);
     await idle(page);
@@ -83,9 +86,10 @@ test('lighting presets, crowd and wave', async ({ page }) => {
   await page.evaluate(() => window.__stadium!.stopWave());
   expect(await page.evaluate(() => window.__stadium!.waving)).toBe(false);
 
-  // The toggle empties the stands, and no wave can start without a crowd.
+  // The toggle empties the stands and the pitch, and no wave can start without a crowd.
   await page.evaluate(() => window.__stadium!.setCrowd(false));
   expect(await page.evaluate(() => window.__stadium!.crowdVisible)).toBe(false);
+  expect(await page.evaluate(() => window.__stadium!.matchVisible)).toBe(false);
   expect(await page.evaluate(() => window.__stadium!.wave())).toBe(false);
   await idle(page);
   await shot(page, 'engine-10-seat-night-no-crowd');

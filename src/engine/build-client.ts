@@ -45,6 +45,7 @@ async function buildOnMainThread(): Promise<BuildData> {
     seatColors: out.seatColors,
     trees: out.trees,
     cars: out.cars,
+    city: out.city,
     shadowMask: out.shadowMask,
     ground: out.groundCanvas as HTMLCanvasElement,
     flipped: false,

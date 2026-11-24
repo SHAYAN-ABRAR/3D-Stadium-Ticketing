@@ -4,6 +4,7 @@
  * in the build worker (with OffscreenCanvas) or, as a fallback, on the main thread in chunks. No three.js.
  */
 import { getLayout } from '@/lib/stadium';
+import { buildCityData, type CityData } from './world/city-data';
 import { drawGround, drawGroundShadows, GROUND_PX, placeCars, placeTrees, type Ctx2D } from './world/park';
 import { seatBaseColors, seatMatrices } from './world/seat-data';
 
@@ -13,8 +14,10 @@ export const SHADOW_MASK_PX = 2048;
 export interface BuildData {
   seatMatrices: Float32Array;
   seatColors: Float32Array;
-  /** Trees packed as [x, z, h, r, conifer (0/1), tint] per tree. */
+  /** Trees packed as [x, z, h, r, conifer (0/1), tint] per tree: the park's, then the city's. */
   trees: Float32Array;
+  /** The neighbourhood around the park (its trees are in `trees`). */
+  city: Omit<CityData, 'trees'>;
   /** Cars packed as [x, z, rot, colour] per car. */
   cars: Float32Array;
   /** Painted ground: an ImageBitmap drawn upside down (from the worker) or a canvas. */
@@ -51,8 +54,10 @@ export async function computeBuildData(
 
   const treeList = placeTrees(),
     carList = placeCars();
-  const trees = new Float32Array(treeList.length * 6);
+  const { trees: cityTrees, ...city } = buildCityData();
+  const trees = new Float32Array(treeList.length * 6 + cityTrees.length);
   treeList.forEach((t, i) => trees.set([t.x, t.z, t.h, t.r, t.conifer ? 1 : 0, t.tint], i * 6));
+  trees.set(cityTrees, treeList.length * 6);
   const cars = new Float32Array(carList.length * 4);
   carList.forEach((c, i) => cars.set([c.x, c.z, c.rot, c.c], i * 4));
   progress(0.3, 'ground');
@@ -75,6 +80,7 @@ export async function computeBuildData(
     seatColors: colors,
     trees,
     cars,
+    city,
     groundCanvas: g.canvas,
     flipped: flip,
     shadowMask,

@@ -1,16 +1,19 @@
 /**
  * LED ribbons, pitch-side boards and the big screens (PROMPT.md 6.6, item 4). With ambient animation on,
  * the ribbons and boards scroll, the ribbons cycle between the event, a kick-off countdown and a welcome,
- * and the screens alternate between the fixture and the countdown. Canvas textures are redrawn at most
- * once a second. Without ambient animation (Low tier, reduced motion, tests) they show fixed content.
+ * and the screens alternate between the fixture and the countdown; a goal in the match on the pitch takes
+ * over the screens and ribbons for a few seconds. Canvas textures are redrawn at most once a second. Without
+ * ambient animation (Low tier, reduced motion, tests) they show fixed content.
  * Board text is in the venue language (English), whatever the visitor's language.
  */
 import * as THREE from 'three';
 import { canvasTexture, type DrawnTexture, type TextureText } from './textures';
 
 type LedItem = readonly [text: string, color: string];
-type LedPhase = 'static' | 'event' | 'countdown' | 'welcome';
-type ScreenPhase = 'static' | 'fixture' | 'countdown';
+type LedPhase = 'static' | 'event' | 'countdown' | 'welcome' | 'goal';
+type ScreenPhase = 'static' | 'fixture' | 'countdown' | 'goal';
+/** How long the screens and ribbons celebrate a goal. */
+const GOAL_MS = 8000;
 
 const LED_CYCLE: readonly LedPhase[] = ['event', 'countdown', 'welcome'];
 const SCREEN_CYCLE: readonly ScreenPhase[] = ['fixture', 'countdown'];
@@ -46,6 +49,8 @@ export class Boards {
   private ledSecond = -1;
   private screenSecond = -1;
   private now = 0;
+  /** The goal being celebrated: the scoring team and its colour, until (epoch ms). */
+  private goalOf: { team: string; color: string; until: number } | null = null;
 
   constructor(
     private readonly text: TextureText,
@@ -80,20 +85,36 @@ export class Boards {
     board.offset.x = (board.offset.x + dt * BOARD_SPEED) % 1;
     this.now = nowMs;
     const second = Math.floor(nowMs / 1000);
-    const ledPhase = LED_CYCLE[Math.floor(nowMs / LED_PHASE_MS) % LED_CYCLE.length];
-    const screenPhase = SCREEN_CYCLE[Math.floor(nowMs / SCREEN_PHASE_MS) % SCREEN_CYCLE.length];
-    // At most one redraw per texture per second: phases change on whole seconds, the countdown ticks once.
-    if (second !== this.ledSecond && (ledPhase !== this.ledPhase || ledPhase === 'countdown')) {
+    if (this.goalOf && nowMs >= this.goalOf.until) this.goalOf = null;
+    const goal = !!this.goalOf;
+    const ledPhase = goal ? 'goal' : LED_CYCLE[Math.floor(nowMs / LED_PHASE_MS) % LED_CYCLE.length];
+    const screenPhase = goal
+      ? 'goal'
+      : SCREEN_CYCLE[Math.floor(nowMs / SCREEN_PHASE_MS) % SCREEN_CYCLE.length];
+    // At most one redraw per texture per second: phases change on whole seconds, the countdown ticks once
+    // (a goal switches at once).
+    if (
+      (second !== this.ledSecond || ledPhase === 'goal') &&
+      (ledPhase !== this.ledPhase || ledPhase === 'countdown')
+    ) {
       this.ledPhase = ledPhase;
       this.ledSecond = second;
       this.led.redraw();
     }
-    if (second !== this.screenSecond && (screenPhase !== this.screenPhase || screenPhase === 'countdown')) {
+    if (
+      (second !== this.screenSecond || screenPhase === 'goal') &&
+      (screenPhase !== this.screenPhase || screenPhase === 'countdown')
+    ) {
       this.screenPhase = screenPhase;
       this.screenSecond = second;
       this.screen.redraw();
     }
     return true;
+  }
+
+  /** A goal in the match on the pitch: the screens and ribbons celebrate it for a few seconds. */
+  goal(team: string, color: string, nowMs: number) {
+    this.goalOf = { team, color, until: nowMs + GOAL_MS };
   }
 
   private countdown(): string | null {
@@ -125,6 +146,15 @@ export class Boards {
           [`WELCOME TO ${upper(t.stadium)}`, WHITE],
           ['ENJOY THE MATCH', ORANGE],
         ];
+      case 'goal':
+        if (this.goalOf)
+          return [
+            ['GOAL!', YELLOW],
+            [upper(this.goalOf.team), WHITE],
+            ['GOAL!', YELLOW],
+            [upper(this.goalOf.team), WHITE],
+          ];
+        break;
     }
     return [
       [upper(t.short), WHITE],
@@ -137,6 +167,23 @@ export class Boards {
   private drawScreen(x: CanvasRenderingContext2D, w: number, h: number) {
     const t = this.text,
       font = this.font;
+    if (this.screenPhase === 'goal' && this.goalOf) {
+      // The scoring team's colour, "GOAL!" and the team's name.
+      const g = x.createLinearGradient(0, 0, 0, h);
+      g.addColorStop(0, this.goalOf.color);
+      g.addColorStop(1, '#0d1f4f');
+      x.fillStyle = g;
+      x.fillRect(0, 0, w, h);
+      x.textAlign = 'center';
+      x.textBaseline = 'middle';
+      x.fillStyle = YELLOW;
+      x.font = `700 196px ${font}`;
+      x.fillText('GOAL!', w / 2, 150, w - 60);
+      x.fillStyle = WHITE;
+      x.font = `700 86px ${font}`;
+      x.fillText(upper(this.goalOf.team), w / 2, 312, w - 60);
+      return;
+    }
     const g = x.createLinearGradient(0, 0, w, h);
     g.addColorStop(0, '#0d1f4f');
     g.addColorStop(1, '#16367f');
