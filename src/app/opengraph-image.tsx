@@ -1,7 +1,7 @@
 import { brand } from '@/config/brand';
 import { OG_SIZE, ogImage } from '@/lib/og';
 
-export const alt = `${brand.name} in 3D at golden hour`;
+export const alt = `${brand.name} in 3D in daylight`;
 export const size = OG_SIZE;
 export const contentType = 'image/png';
 

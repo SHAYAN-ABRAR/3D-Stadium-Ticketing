@@ -1,13 +1,13 @@
 /**
  * Lighting presets (PROMPT.md 6.6, item 3) with a smooth 1.5 s transition:
- * - golden hour (default): sun in the south-west about 22 degrees high, warm light;
- * - day: sun high, neutral light;
+ * - day (default): sun high in the south-west, neutral light;
  * - blue hour: the sun just set, a deep blue sky, the lights already on;
  * - night: the sun below the horizon, moonlight and a dim hemisphere; floodlight strips under the roof's inner
  *   edge, spot lights on the pitch (no shadows), LED ribbons, screens and facade windows bright enough to
  *   bloom, facade fins washed in the brand colour, a light strip along the roof's edge, stars and a moon.
  * Values are blended every frame of a transition; the environment map is rebuilt for the target preset at
- * its end (and cached). Painted ground shadows match the golden sun only, so other presets fade them.
+ * its end (and cached). Painted ground shadows are drawn for a sun 22 degrees high (SUN_DIR in park.ts), so
+ * day softens them and the evening presets hide them.
  */
 import * as THREE from 'three';
 import { brand } from '@/config/brand';
@@ -48,45 +48,16 @@ export function sunColor(elevation: number): THREE.Color {
   return gold.lerp(high, THREE.MathUtils.clamp((elevation - 22) / 36, 0, 1));
 }
 
-/** The golden-hour sun of the prototype (SUN_DIR): azimuth 145 degrees, 22 degrees high. */
-const GOLDEN_AZ = 145;
+/** The sun's azimuth in the prototype (SUN_DIR in park.ts): 145 degrees, south-west. */
+const SUN_AZ = 145;
 
 export const LOOKS: Record<LightingPreset, Look> = {
-  golden: {
-    sky: {
-      elevation: 22,
-      azimuth: GOLDEN_AZ,
-      turbidity: 8,
-      rayleigh: 2.2,
-      mie: 0.006,
-      mieG: 0.88,
-      gain: 0.55,
-      clouds: 0.35,
-      horizonTint: [1, 1, 1],
-      zenithTint: [1, 1, 1],
-    },
-    lightElevation: 22,
-    lightAzimuth: GOLDEN_AZ,
-    lightColor: sunColor(22),
-    lightIntensity: 3.1,
-    hemiSky: c('#cfe0f5'),
-    hemiGround: c('#5d6b46'),
-    hemiIntensity: 0.35,
-    fog: c('#e9d9c1'),
-    fogNear: 900,
-    fogFar: 5200,
-    exposure: 0.92,
-    envIntensity: 1,
-    paintedShadows: 1,
-    cloudShadows: 0.32,
-    night: 0,
-  },
   day: {
-    // Same azimuth as golden hour, so the painted ground shadows only fade and never point the wrong way
+    // Same azimuth as the painted ground shadows, so they only fade and never point the wrong way
     // (pitfall 14).
     sky: {
       elevation: 58,
-      azimuth: GOLDEN_AZ,
+      azimuth: SUN_AZ,
       turbidity: 4,
       rayleigh: 1.4,
       mie: 0.004,
@@ -97,9 +68,9 @@ export const LOOKS: Record<LightingPreset, Look> = {
       zenithTint: [1, 1, 1],
     },
     lightElevation: 58,
-    lightAzimuth: GOLDEN_AZ,
+    lightAzimuth: SUN_AZ,
     lightColor: sunColor(58),
-    // A high sun lights flat surfaces about twice as strongly as the golden-hour sun at 22 degrees.
+    // A high sun lights flat surfaces about twice as strongly as a sun 22 degrees high.
     lightIntensity: 1.9,
     hemiSky: c('#d9e8fb'),
     hemiGround: c('#66774d'),
@@ -122,7 +93,7 @@ export const LOOKS: Record<LightingPreset, Look> = {
     // the hour after sunset.
     sky: {
       elevation: -1.2,
-      azimuth: GOLDEN_AZ,
+      azimuth: SUN_AZ,
       turbidity: 3.2,
       rayleigh: 3.4,
       mie: 0.005,
@@ -135,7 +106,7 @@ export const LOOKS: Record<LightingPreset, Look> = {
       zenithTint: [0.2, 0.4, 1.7],
     },
     lightElevation: 34,
-    lightAzimuth: GOLDEN_AZ + 20,
+    lightAzimuth: SUN_AZ + 20,
     lightColor: c('#87a1e8'),
     lightIntensity: 0.8,
     hemiSky: c('#7088d2'),
@@ -153,7 +124,7 @@ export const LOOKS: Record<LightingPreset, Look> = {
   night: {
     sky: {
       elevation: -8,
-      azimuth: GOLDEN_AZ,
+      azimuth: SUN_AZ,
       turbidity: 2,
       rayleigh: 0.8,
       mie: 0.003,
@@ -260,9 +231,9 @@ export class LightingRig {
       membraneEmissive: L.membrane.emissiveIntensity,
       membraneUnder: L.membraneUnder.emissiveIntensity,
     };
-    this.target = 'golden';
-    this.current = LOOKS.golden;
-    this.envs.set('golden', L.env);
+    this.target = 'day';
+    this.current = LOOKS.day;
+    this.envs.set('day', L.env);
     this.apply(this.current);
   }
 

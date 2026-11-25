@@ -17,7 +17,7 @@
       "terms": "Sample terms of sale for this demo ticket shop.",
       "privacy": "How this demo handles your data: it stays in your browser."
     },
-    "ogAlt": "{stadium} in 3D at golden hour"
+    "ogAlt": "{stadium} in 3D in daylight"
   },
   "home": {
     "heroTitle": "Every seat. Every view. Before you buy.",
@@ -168,7 +168,6 @@
       },
       "lighting": "Lighting",
       "lightings": {
-        "golden": "Golden hour",
         "day": "Day",
         "dusk": "Blue hour",
         "night": "Night match"

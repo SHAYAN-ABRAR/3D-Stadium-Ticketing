@@ -49,8 +49,8 @@ match-sim.ts       The match on the pitch as plain TypeScript (tested): 4-4-2 sh
                    shots and saves, set pieces, goals, the walk back to kick-off, referees.
 match.ts           Draws the match: instanced players with a run cycle in the shader, blob shadows, ball.
 post.ts            Composer: render pass, N8AO (High), bloom (Medium+), ACES tone mapping, SMAA, vignette.
-lighting.ts        Golden hour / day / blue hour / night presets with 1.5 s blends (sky and its colour
-                   grade, sun, fog, night emissives in the stadium, the city and the metro).
+lighting.ts        Day (default) / blue hour / night presets with 1.5 s blends (sky and its colour grade,
+                   sun, fog, night emissives in the stadium, the city and the metro).
 snapshots.ts       "Your view" pictures: scissored render + drawImage in the same task, JPEG export; on High
                    2x size, depth of field and the crowd.
 quality.ts         Tier table, automatic tiering, localStorage memory, ?quality= override.

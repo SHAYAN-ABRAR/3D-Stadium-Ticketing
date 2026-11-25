@@ -66,7 +66,7 @@ export interface World {
     spots: THREE.SpotLight[];
     /** The floodlights' spill on the stands (night only). */
     bowlFill: THREE.PointLight;
-    /** The golden-hour environment (the lighting rig owns and disposes it). */
+    /** The environment of the default preset, day (the lighting rig owns and disposes it). */
     env: THREE.WebGLRenderTarget;
     flood: THREE.MeshBasicMaterial;
     roofEdge: THREE.MeshBasicMaterial;
@@ -121,14 +121,14 @@ export function buildWorld(renderer: THREE.WebGLRenderer, data: BuildData, opts:
   const extra: { dispose: () => void }[] = [];
   const maxAniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
 
-  /* lights, sky, fog (the lighting rig sets them per preset; these are golden hour) */
-  scene.fog = new THREE.Fog(new THREE.Color('#e9d9c1'), 900, 5200);
+  /* lights, sky, fog (the lighting rig sets them per preset; these start as day, the default) */
+  scene.fog = new THREE.Fog(LOOKS.day.fog, LOOKS.day.fogNear, LOOKS.day.fogFar);
   const sky = makeSky();
-  setSky(sky, LOOKS.golden.sky);
+  setSky(sky, LOOKS.day.sky);
   const stars = makeStars();
   const moon = makeMoon(dirFrom(LOOKS.night.lightElevation, LOOKS.night.lightAzimuth));
   scene.add(sky, stars, moon);
-  const sun = new THREE.DirectionalLight(new THREE.Color('#ffdcb2'), 3.1);
+  const sun = new THREE.DirectionalLight(LOOKS.day.lightColor, LOOKS.day.lightIntensity);
   sun.position.copy(sunDir).multiplyScalar(520);
   sun.castShadow = true;
   sun.shadow.mapSize.set(opts.shadowMapSize, opts.shadowMapSize);
@@ -138,12 +138,12 @@ export function buildWorld(renderer: THREE.WebGLRenderer, data: BuildData, opts:
   sun.shadow.radius = 2;
   sun.shadow.camera.updateProjectionMatrix();
   scene.add(sun, sun.target);
-  const hemi = new THREE.HemisphereLight(new THREE.Color('#cfe0f5'), new THREE.Color('#5d6b46'), 0.35);
+  const hemi = new THREE.HemisphereLight(LOOKS.day.hemiSky, LOOKS.day.hemiGround, LOOKS.day.hemiIntensity);
   scene.add(hemi);
   const boxLight = new THREE.PointLight(new THREE.Color('#ffd6a3'), 0, 11, 2);
   scene.add(boxLight);
 
-  const env = skyEnvironment(renderer, LOOKS.golden.sky);
+  const env = skyEnvironment(renderer, LOOKS.day.sky);
   scene.environment = env.texture;
   const ambient = createAmbientUniforms();
   ambient.uCloudSun.value.copy(sunDir);

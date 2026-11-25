@@ -50,17 +50,17 @@ describe('lighting presets', () => {
     expect(LOOKS.night.cloudShadows).toBe(0);
     expect(LOOKS.night.paintedShadows).toBe(0);
     expect(LOOKS.night.night).toBe(1);
-    expect(LOOKS.golden.night).toBe(0);
+    expect(LOOKS.day.night).toBe(0);
   });
 
   it('blends between presets and lands exactly on the target', () => {
-    const half = mixLook(LOOKS.golden, LOOKS.night, 0.5);
+    const half = mixLook(LOOKS.day, LOOKS.night, 0.5);
     expect(half.night).toBeCloseTo(0.5);
-    expect(half.exposure).toBeCloseTo((LOOKS.golden.exposure + LOOKS.night.exposure) / 2);
-    const end = mixLook(LOOKS.golden, LOOKS.day, 1);
+    expect(half.exposure).toBeCloseTo((LOOKS.day.exposure + LOOKS.night.exposure) / 2);
+    const end = mixLook(LOOKS.night, LOOKS.day, 1);
     expect(end.lightIntensity).toBe(LOOKS.day.lightIntensity);
     expect(end.sky.elevation).toBe(LOOKS.day.sky.elevation);
     // Angles take the short way round.
-    expect(mixLook(LOOKS.golden, LOOKS.night, 1).lightAzimuth % 360).toBeCloseTo(LOOKS.night.lightAzimuth);
+    expect(mixLook(LOOKS.day, LOOKS.night, 1).lightAzimuth % 360).toBeCloseTo(LOOKS.night.lightAzimuth);
   });
 });

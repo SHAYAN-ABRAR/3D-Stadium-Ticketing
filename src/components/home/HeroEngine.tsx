@@ -1,6 +1,6 @@
 'use client';
 /**
- * The home hero's 3D stadium: the engine in hero mode (golden hour, the crowd, a slow orbit, no input).
+ * The home hero's 3D stadium: the engine in hero mode (day, the crowd, a slow orbit, no input).
  * Loaded with next/dynamic and ssr: false; Strict Mode safe like the picker's EngineView.
  */
 import { useEffect, useRef } from 'react';

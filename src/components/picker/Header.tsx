@@ -208,7 +208,7 @@ function ViewSettings() {
     useShallow((s) => ({ engine: s.engine, tier: s.tier, status: s.status, level: s.nav.level })),
   );
   const [setting, setSetting] = useState<QualitySetting>('auto');
-  const [lighting, setLighting] = useState<LightingPreset>('golden');
+  const [lighting, setLighting] = useState<LightingPreset>('day');
   const [crowd, setCrowd] = useState(true);
   if (status !== 'ready' || !engine) return null;
   // The crowd (and so the wave) shows in seat and skybox views.
@@ -282,7 +282,7 @@ function ViewSettings() {
                 }}
                 className="mt-1.5 grid gap-1"
               >
-                {(['golden', 'day', 'dusk', 'night'] as const).map((p) => (
+                {(['day', 'dusk', 'night'] as const).map((p) => (
                   <Choice key={p} value={p} label={t(`lightings.${p}`)} />
                 ))}
               </RadioGroup.Root>

@@ -3,7 +3,7 @@
 export type Level = 'loading' | 'intro' | 'overview' | 'stand' | 'block' | 'seat' | 'box' | 'vip';
 export type QualityTier = 'low' | 'medium' | 'high';
 export type QualitySetting = 'auto' | QualityTier;
-export type LightingPreset = 'golden' | 'day' | 'dusk' | 'night';
+export type LightingPreset = 'day' | 'dusk' | 'night';
 
 /** Where the camera is in the flow. Indices: stand 0-3, block/box by index, seat by seat index, vip 0-7. */
 export interface NavState {

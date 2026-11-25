@@ -9,7 +9,7 @@ email is ever sent.
 
 **Live demo: [stadium-tickets.vercel.app](https://stadium-tickets.vercel.app)**
 
-![The home page: the stadium in 3D at golden hour, with the next match](docs/screenshots/home.jpg)
+![The home page: the stadium in 3D by day, with the next match](docs/screenshots/home.jpg)
 
 ## What it does
 
@@ -28,9 +28,9 @@ email is ever sent.
 
 **Graphics and animation** (three.js with post-processing)
 
-- Golden hour, day, blue hour and night match lighting with smooth transitions, a physical sky with clouds,
-  bloom on floodlights, LED ribbons and lit windows, and on the High tier ambient occlusion plus a
-  depth-of-field "Your view" picture.
+- Day, blue hour and night match lighting with smooth transitions, a physical sky with clouds, bloom on
+  floodlights, LED ribbons and lit windows, and on the High tier ambient occlusion plus a depth-of-field
+  "Your view" picture.
 - A match-day crowd: a spectator in every sold seat (camera-facing sprites from an atlas drawn in code, in
   the two teams' colours, with an away end), low-poly 3D people near the camera on the High tier, idle
   motion, and a Mexican wave that travels round the bowl (the home page's crowd starts one now and then).

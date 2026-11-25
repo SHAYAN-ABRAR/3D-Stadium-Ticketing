@@ -134,7 +134,7 @@ export class StadiumEngine {
   private auto: AutoTier;
   private frameTimes: number[] = [];
   private statsTimer = 0;
-  private lighting: LightingPreset = 'golden';
+  private lighting: LightingPreset = 'day';
   /** The visitor's crowd toggle (the crowd shows in seat and box views). */
   private crowdWanted = true;
   /** When the home hero's crowd starts its next wave (frame time; 0 = not scheduled yet). */
@@ -280,7 +280,7 @@ export class StadiumEngine {
     this.post.configure(TIERS[this.tier]);
     this.lightingRig = new LightingRig(world, renderer);
     this.lightingRig.setClouds(tier.cloudShadows);
-    if (this.lighting !== 'golden') this.lightingRig.set(this.lighting, true);
+    if (this.lighting !== 'day') this.lightingRig.set(this.lighting, true);
     this.crowd = new Crowd(this.layout, this.opts.text, world.ambient);
     this.crowd.scaleIn = !(this.opts.freeze || this.opts.reducedMotion);
     this.crowd.setStatuses(this.statuses);
@@ -691,7 +691,7 @@ export class StadiumEngine {
     this.events.emit('quality', { tier: this.tier, setting });
   }
 
-  /** Golden hour (default), day or night, with a 1.5 s transition (instant on request or reduced motion). */
+  /** Day (default), blue hour or night, with a 1.5 s transition (instant on request or reduced motion). */
   setLighting(preset: LightingPreset, instant = false) {
     this.lighting = preset;
     this.lightingRig?.set(preset, instant || this.opts.reducedMotion);

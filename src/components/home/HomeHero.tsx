@@ -1,6 +1,6 @@
 'use client';
 /**
- * The home hero (PROMPT.md 8): a full-bleed 3D stadium at golden hour with the crowd and a slow orbit. A
+ * The home hero (PROMPT.md 8): a full-bleed 3D stadium by day with the crowd and a slow orbit. A
  * poster rendered from the same scene shows while the 3D view loads and when WebGL is missing (a portrait
  * one on narrow screens). Over it: the headline; beside it on desktops, below it on phones, the next match
  * with a countdown and "Choose your seats".

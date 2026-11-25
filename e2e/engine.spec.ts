@@ -73,7 +73,7 @@ test('lighting presets, crowd and wave', async ({ page }) => {
   // From a seat, the match is on: players, the referees and the ball on the pitch.
   expect(await page.evaluate(() => window.__stadium!.matchVisible)).toBe(true);
 
-  for (const preset of ['golden', 'day', 'dusk', 'night'] as const) {
+  for (const preset of ['day', 'dusk', 'night'] as const) {
     await page.evaluate((p) => window.__stadium!.setLighting(p), preset);
     expect(await page.evaluate(() => window.__stadium!.lighting)).toBe(preset);
     await idle(page);
